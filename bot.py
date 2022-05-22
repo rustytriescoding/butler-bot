@@ -17,6 +17,9 @@ async def on_message(message):
         return
 
     if message.content == 'matt1das':
+        print("a")
+    # testing ping feature
+    if message.content == 'ping':
         await message.channel.send('Matthew das fan!')
 
     if message.content == 'matt2das':
