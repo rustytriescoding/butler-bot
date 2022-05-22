@@ -19,13 +19,20 @@ async def add(ctx, left: int, right: int):
     await ctx.send(left + right)
 
 @bot.command()
-async def skull(ctx, num: int):
-    if num < 1 or num > 4000:
-        num = 1
-    msg = ''
-    for x in range(num):
-        msg += "💀"
-    await ctx.send(msg)
+async def skull(ctx, userinput):
+    try:
+        num = int(userinput)
+        if num < 1 or num > 2000:
+            num = 1
+            await ctx.send("Number out of range, number must be within 1-2000)")
+        else:    
+            msg = ''
+            for x in range(num):
+                msg += "💀"
+            await ctx.send(msg)
+    except ValueError:
+        await ctx.send("Not a number!")
+
 
 
 @bot.command()
