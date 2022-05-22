@@ -1,4 +1,23 @@
-import hikari
+import discord
+import os
+from dotenv import load_dotenv
 
-bot = hikari.GatewayBot(token='OTc3NzcwNjc1NTg0NTMyNTIw.GKXDat.5PSgSARtN8mnEz5zLLJeU9mMFU-tRQk6l3Z0oA')
-bot.run()
+load_dotenv()
+
+client = discord.Client()
+
+@client.event
+async def on_ready():
+    print('Logged in as', client)
+
+@client.event
+async def on_message(message):
+    # don't respond to ourselves
+    if message.author == client.user:
+        return
+
+    if message.content == 'ping':
+        await message.channel.send('pong')
+
+
+client.run(os.getenv("DISCORD_TOKEN"))
