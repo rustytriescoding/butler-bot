@@ -20,5 +20,7 @@ async def on_message(message):
     if message.content == 'ping':
         await message.channel.send('Matthew das fan!')
 
+    #ping feature comment
+
 
 client.run(os.getenv("DISCORD_TOKEN"))
