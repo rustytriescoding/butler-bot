@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import os
+import random
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,8 +17,12 @@ async def on_ready():
 
 @bot.command()
 async def add(ctx, left: int, right: int):
-    """Adds two numbers together."""
     await ctx.send(left + right)
+
+@bot.command()
+async def valname(ctx, name: str):
+    await ctx.send("Valorant username: " + name)
+
 
 
 bot.run(os.getenv("DISCORD_TOKEN"))
