@@ -20,6 +20,8 @@ async def add(ctx, left: int, right: int):
 
 @bot.command()
 async def skull(ctx, num: int):
+    if num < 1:
+        num = 1
     msg = ''
     for x in range(num):
         msg += "💀"
