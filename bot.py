@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import os
-import random
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,6 +17,14 @@ async def on_ready():
 @bot.command()
 async def add(ctx, left: int, right: int):
     await ctx.send(left + right)
+
+@bot.command()
+async def skull(ctx, num: int):
+    msg = ''
+    for x in range(num):
+        msg += "💀"
+    await ctx.send(msg)
+
 
 @bot.command()
 async def valname(ctx, name: str):
