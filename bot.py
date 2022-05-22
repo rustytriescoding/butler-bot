@@ -16,7 +16,7 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content == 'ping':
+    if message.content == 'matt1das':
         await message.channel.send('Matthew das fan!')
 
 
