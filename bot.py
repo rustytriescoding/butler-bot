@@ -20,7 +20,7 @@ async def add(ctx, left: int, right: int):
 
 @bot.command()
 async def skull(ctx, num: int):
-    if num < 1:
+    if num < 1 or num > 4000:
         num = 1
     msg = ''
     for x in range(num):
