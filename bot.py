@@ -1,35 +1,23 @@
 import discord
+from discord.ext import commands
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-client = discord.Client()
 
-valname = ""
+bot = commands.Bot(command_prefix='?')
 
-@client.event
+@bot.event
 async def on_ready():
-    print('Logged in as', client)
-
-@client.event
-async def on_message(message):
-    # don't respond to ourselves
-    if message.author == client.user:
-        return
-
-    if message.content == 'matt1das':
-        await message.channel.send('Matthew das fan!')
-
-    if message.content == 'matt2das':
-        await message.channel.send('Matthew das enemy!')    
+    print(f'Logged in as {bot.user} (ID: {bot.user.id})')
+    print('------')
 
 
-    # Valorant Feature
-    if message.content == 'valorantfeature':
-        await message.channel.send('testing val')     
-        valname = "cure#sss"
-        await message.channel.send(valname)
+@bot.command()
+async def add(ctx, left: int, right: int):
+    """Adds two numbers together."""
+    await ctx.send(left + right)
 
 
-client.run(os.getenv("DISCORD_TOKEN"))
+bot.run(os.getenv("DISCORD_TOKEN"))
