@@ -17,7 +17,7 @@ async def on_message(message):
         return
 
     if message.content == 'ping':
-        await message.channel.send('pong')
+        await message.channel.send('Matthew das fan!')
 
 
 client.run(os.getenv("DISCORD_TOKEN"))
