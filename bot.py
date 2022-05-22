@@ -19,5 +19,8 @@ async def on_message(message):
     if message.content == 'matt1das':
         await message.channel.send('Matthew das fan!')
 
+    if message.content == 'matt2das':
+        await message.channel.send('Matthew das enemy!')    
+
 
 client.run(os.getenv("DISCORD_TOKEN"))
