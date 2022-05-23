@@ -49,9 +49,9 @@ async def valrank(ctx, *,username: str):
         data = response.json()      
 
         
-        await ctx.send("Rank: " + data['data']['currenttierpatched'])
-        # await ctx.send(data['data']['ranking_in_tier'])
-        # await ctx.send(data['data']['mmr_change_to_last_game'])
+        await ctx.send("Rank: " + str(data['data']['currenttierpatched']))
+        await ctx.send("Elo: " + str(data['data']['ranking_in_tier']))
+        await ctx.send("Last Match Elo: "+ str(data['data']['mmr_change_to_last_game']))
     except:
         await ctx.send("ERROR")
 
