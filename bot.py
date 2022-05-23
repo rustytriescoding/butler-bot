@@ -54,6 +54,6 @@ async def status(ctx):
     # await ctx.channel.send("{} {}".format(categories[1], botCount))
     # await ctx.channel.send("{} {}".format(categories[2], onlineMembers))
     # await ctx.channel.send("{} {}".format(categories[3], offlineMembers))
-    await ctx.channel.send(embed)
+    await ctx.channel.send(embed=embed)
 
 bot.run(os.getenv("DISCORD_TOKEN"))
