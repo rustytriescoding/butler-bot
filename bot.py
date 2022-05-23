@@ -38,10 +38,11 @@ async def skull(ctx, userinput):
 
 
 @bot.command()
-async def val(ctx, username: str):
+async def val(ctx, *,username: str):
     try:
         user = username.split("#")
-        
+        print(user)
+
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
         response = requests.get("https://api.henrikdev.xyz/valorant/v1/mmr/na/{}/{}".format(user[0], user[1]), headers=headers)
        
