@@ -38,7 +38,7 @@ async def skull(ctx, userinput):
 
 
 @bot.command()
-async def val(ctx, *,username: str):
+async def valrank(ctx, *,username: str):
     try:
         user = username.split("#")
         print(user)
