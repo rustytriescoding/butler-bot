@@ -67,16 +67,12 @@ async def valrank(ctx, *,username: str):
             dataDict['values'] = [str(data['data']['currenttierpatched']), str(data['data']['ranking_in_tier']), str(data['data']['mmr_change_to_last_game'])]
 
             for i in data2['data'][-1]['tiers']:
-                print(i)
                 if ((type(i['tierName']) == str) and (type(i['largeIcon']) == str) and (type(i['color']) == str)):
-                    print(i['largeIcon'])
-                    print(i['color'])
                     dataDict['rankNames'].append(i['tierName'])
                     dataDict['rankImgs'].append(i['largeIcon'])
                     dataDict['rankColors'].append(i['color'])
                 else:
                     continue
-                print("\n")
         else:
             print("Existing Valorant Data Found...")
 
@@ -93,8 +89,8 @@ async def valrank(ctx, *,username: str):
                 embed.color = int("0x" + str(dataDict['rankColors'][i][:6]), 16)
                 embed.set_thumbnail(url=dataDict['rankImgs'][i])
 
-        
         await ctx.send(embed=embed)
+        print("Successfully retrieved {}'s Stats!\n".format(user[0]))
     except:
         await ctx.send("ERROR")
 
