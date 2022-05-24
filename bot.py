@@ -4,9 +4,7 @@ import os
 import requests
 from dotenv import load_dotenv
 
-
 load_dotenv()
-
 
 bot = commands.Bot(command_prefix='?')
 
@@ -14,7 +12,6 @@ bot = commands.Bot(command_prefix='?')
 async def on_ready():
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
     print('------')
-
 
 @bot.command()
 async def add(ctx, left: int, right: int):
@@ -35,8 +32,6 @@ async def skull(ctx, userinput):
     except ValueError:
         await ctx.send("Not a number!")
 
-
-
 @bot.command()
 async def valrank(ctx, *,username: str):
     try:
@@ -48,15 +43,10 @@ async def valrank(ctx, *,username: str):
 
         data = response.json()      
 
-        
         await ctx.send("Rank: " + str(data['data']['currenttierpatched']))
         await ctx.send("Elo: " + str(data['data']['ranking_in_tier']))
         await ctx.send("Last Match Elo: "+ str(data['data']['mmr_change_to_last_game']))
     except:
         await ctx.send("ERROR")
-
-
-
-
 
 bot.run(os.getenv("DISCORD_TOKEN"))
