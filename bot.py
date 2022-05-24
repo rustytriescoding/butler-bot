@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import os
 import requests
+import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -43,9 +44,26 @@ async def valrank(ctx, *,username: str):
 
         data = response.json()      
 
-        await ctx.send("Rank: " + str(data['data']['currenttierpatched']))
-        await ctx.send("Elo: " + str(data['data']['ranking_in_tier']))
-        await ctx.send("Last Match Elo: "+ str(data['data']['mmr_change_to_last_game']))
+
+        categories = ["Rank", "Elo", "Last Match's Elo"]
+        values = [str(data['data']['currenttierpatched']), str(data['data']['ranking_in_tier']), str(data['data']['mmr_change_to_last_game'])]
+
+        embed = discord.Embed()
+        embed.title = "{} Server Status".format(ctx.guild.name)
+        embed.timestamp = datetime.datetime.utcnow()
+        embed.color = 0xf04e1f
+        embed.set_footer(text="\u200b", icon_url=imageURL)
+        embed.add_field(name="\u200b", value="\u200b")
+        embed.add_field(name=categories[0], value=values[0], inline=False)
+        embed.add_field(name=categories[1], value=values[1], inline=False)
+        embed.add_field(name=categories[2], value=values[2], inline=False)
+        embed.add_field(name="\u200b", value="\u200b")
+
+        await ctx.send(embed=embed)
+
+        # await ctx.send("Rank: " + str(data['data']['currenttierpatched']))
+        # await ctx.send("Elo: " + str(data['data']['ranking_in_tier']))
+        # await ctx.send("Last Match Elo: "+ str(data['data']['mmr_change_to_last_game']))
     except:
         await ctx.send("ERROR")
 
