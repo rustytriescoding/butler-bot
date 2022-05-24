@@ -9,7 +9,8 @@ load_dotenv()
 
 bot = commands.Bot(command_prefix='?')
 
-dataDict = { 'categories' : [],
+dataDict = { 
+             'categories' : [],
              'values' : [],
              'rankNames' : [],
              'rankImgs' : [],
@@ -20,6 +21,14 @@ dataDict = { 'categories' : [],
 async def on_ready():
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
     print('------')
+
+@bot.event
+async def on_command_error(ctx, error):
+    if (type(error) == discord.ext.commands.errors.CommandNotFound):
+        print(error)
+        await ctx.send(error)
+    else:
+        await ctx.send("There is an error with your command")
 
 @bot.command()
 async def add(ctx, left: int, right: int):
@@ -59,12 +68,17 @@ async def valrank(ctx, *,username: str):
         c = 0
         embed = discord.Embed()
         
-        # Retrieves latest patch of data and stores it locally (this way it runs faster without having to keep requesting from server)
+
+
+        
+
+
+        dataDict['categories'] = ["Rank", "Elo", "Last Match's Elo"]
+        dataDict['values'] = [str(data['data']['currenttierpatched']), str(data['data']['ranking_in_tier']), str(data['data']['mmr_change_to_last_game'])]
+
+        # Retrieves latest patch of ranked data and stores it locally (this way it runs faster without having to keep requesting from server)
         if (len(dataDict['rankNames']) <= 0):
             print("Retrieving New Valorant Data...")
-
-            dataDict['categories'] = ["Rank", "Elo", "Last Match's Elo"]
-            dataDict['values'] = [str(data['data']['currenttierpatched']), str(data['data']['ranking_in_tier']), str(data['data']['mmr_change_to_last_game'])]
 
             for i in data2['data'][-1]['tiers']:
                 if ((type(i['tierName']) == str) and (type(i['largeIcon']) == str) and (type(i['color']) == str)):
