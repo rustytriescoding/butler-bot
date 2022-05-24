@@ -4,6 +4,7 @@ import os
 import requests
 import datetime
 from dotenv import load_dotenv
+import time
 
 load_dotenv()
 
@@ -24,14 +25,14 @@ async def on_ready():
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
     print('------')
 
-@bot.event
-async def on_command_error(ctx, error):
-    if (type(error) == discord.ext.commands.errors.CommandNotFound):
-        print(error)
-        await ctx.send(error)
-    else:
-        print(error)
-        await ctx.send("There is an error with your command")
+# @bot.event
+# async def on_command_error(ctx, error):
+#     if (type(error) == discord.ext.commands.errors.CommandNotFound):
+#         print(error)
+#         await ctx.send(error)
+#     else:
+#         print(error)
+#         await ctx.send("There is an error with your command")
 
 @bot.command()
 async def add(ctx, left: int, right: int):
@@ -56,30 +57,22 @@ async def skull(ctx, userinput):
 # 1. Storing user data into a database / 
 # Only call to make a request for valContent if the database / locally stored data is there are any changes in data
 @bot.command()
-async def valrank(ctx, *,username: str):
+async def valrank(ctx, *, username: str):
     # try:
         user = username.split("#")
-        locale = "en-US"
 
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
         playerInfo = requests.get("https://api.henrikdev.xyz/valorant/v1/mmr/na/{}/{}".format(user[0], user[1]), headers=headers)
         ranks = requests.get("https://valorant-api.com/v1/competitivetiers", headers=headers)
-        valContent = requests.get("https://na.api.riotgames.com/val/content/v1/contents?locale={}&api_key={}".format(locale, os.getenv("VAL_API_KEY")))
-        # leaderboards = requests.get("", headers=headers)
-        # response4 = requests.get("https://dgxfkpkb4zk5c.cloudfront.net/leaderboards/affinity/{region}/queue/competitive/act/{actId}?startIndex={startIndex}&size={size}".format("NA", ""))
-
+        # valContent = requests.get("https://na.api.riotgames.com/val/content/v1/contents?locale={}&api_key={}".format(locale, os.getenv("VAL_API_KEY")))
+        # leaderboards = requests.get("https://na.api.riotgames.com/val/ranked/v1/leaderboards/by-act/{}?size=200&startIndex=200&api_key={}".format(os.getenv("VAL_API_KEY")), headers=headers)
 
 
         print("Retrieving {}'s Ranked Stats...".format(user[0]))
 
         data = playerInfo.json()
         data2 = ranks.json()
-        data3 = valContent.json()
-        # data4 = response4.json()
-
-        for x in data3:
-            print(x)
-        # print(data4)
+        
 
         c = 0
         embed = discord.Embed()
@@ -118,5 +111,44 @@ async def valrank(ctx, *,username: str):
         print("Successfully retrieved {}'s Stats!\n".format(user[0]))
     # except:
     #     await ctx.send("ERROR")
+
+@bot.command()
+async def valtop(ctx):
+    locale = "en-US"
+    headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
+                "Origin": "https://developer.riotgames.com"
+              }
+
+    print("Retrieving Current Act")
+    valContent = requests.get("https://na.api.riotgames.com/val/content/v1/contents?locale={}&api_key={}".format(locale, os.getenv("VAL_API_KEY")), headers=headers)
+    
+    data3 = valContent.json()
+    currentActID = ""
+    c = 0
+
+    for x in data3['acts']:
+        if (x['name'].find('ACT') != 0):
+            data3['acts'].pop(c)
+        c += 1
+
+    currentActID = data3['acts'][-1]['id']
+
+    leaderboards = requests.get("https://na.api.riotgames.com/val/ranked/v1/leaderboards/by-act/{}?size={}&startIndex={}&api_key={}".format(currentActID, 1, 0, os.getenv("VAL_API_KEY")), headers=headers)
+    
+    print("Retrieved Leaderboard Data...")
+
+    data4 = leaderboards.json()
+    totalTopPlayers = data4['totalPlayers']
+    
+    print("Retrieving ")
+    for i in range(0, totalTopPlayers, 200):
+        print(i)
+        leaderboards = requests.get("https://na.api.riotgames.com/val/ranked/v1/leaderboards/by-act/{}?size={}&startIndex={}&api_key={}".format(currentActID, 200, i, os.getenv("VAL_API_KEY")), headers=headers)
+        time.sleep(2)
+
+    
 
 bot.run(os.getenv("DISCORD_TOKEN"))
