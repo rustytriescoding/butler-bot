@@ -46,23 +46,22 @@ async def skull(ctx, userinput):
 async def valrank(ctx, *,username: str):
     try:
         user = username.split("#")
-        # print(user)
 
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
         response = requests.get("https://api.henrikdev.xyz/valorant/v1/mmr/na/{}/{}".format(user[0], user[1]), headers=headers)
         response2 = requests.get("https://valorant-api.com/v1/competitivetiers", headers=headers)
 
+        print("Retrieving {}'s Ranked Stats...".format(user[0]))
+
         data = response.json()
         data2 = response2.json()
-
-        # categories = ["Rank", "Elo", "Last Match's Elo"]
-        # values = [str(data['data']['currenttierpatched']), str(data['data']['ranking_in_tier']), str(data['data']['mmr_change_to_last_game'])]
 
         c = 0
         embed = discord.Embed()
         
         # Retrieves latest patch of data and stores it locally (this way it runs faster without having to keep requesting from server)
         if (len(dataDict['rankNames']) <= 0):
+            print("Retrieving New Valorant Data...")
 
             dataDict['categories'] = ["Rank", "Elo", "Last Match's Elo"]
             dataDict['values'] = [str(data['data']['currenttierpatched']), str(data['data']['ranking_in_tier']), str(data['data']['mmr_change_to_last_game'])]
@@ -78,8 +77,11 @@ async def valrank(ctx, *,username: str):
                 else:
                     continue
                 print("\n")
+        else:
+            print("Existing Valorant Data Found...")
 
-        embed.title = "{}'s Ranked Info".format(user[0])
+        print("Embedding Valorant Data...")
+        embed.title = "{}'s Ranked Stats".format(user[0])
         embed.timestamp = datetime.datetime.utcnow()
         embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
         embed.add_field(name=dataDict['categories'][0], value=dataDict['values'][0], inline=False)
@@ -91,6 +93,7 @@ async def valrank(ctx, *,username: str):
                 embed.color = int("0x" + str(dataDict['rankColors'][i][:6]), 16)
                 embed.set_thumbnail(url=dataDict['rankImgs'][i])
 
+        
         await ctx.send(embed=embed)
     except:
         await ctx.send("ERROR")
