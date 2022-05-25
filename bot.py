@@ -37,10 +37,6 @@ async def on_command_error(ctx, error):
         await ctx.send("There is an error with your command")
 
 @bot.command()
-async def add(ctx, left: int, right: int):
-    await ctx.send(left + right)
-
-@bot.command()
 async def skull(ctx, userinput):
     try:
         num = int(userinput)
