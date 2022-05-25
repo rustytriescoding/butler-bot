@@ -55,8 +55,10 @@ async def skull(ctx, userinput):
 # 1. Storing user data into a database / 
 # Only call to make a request for valContent if the database / locally stored data is there are any changes in data
 @bot.command()
-async def valrank(ctx, *, username: str):
-    # try:
+async def valrank(ctx, *, username: str = None):
+
+        
+           
         user = username.split("#")
 
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
