@@ -6,6 +6,9 @@ import datetime
 from dotenv import load_dotenv
 import time
 import json
+import pymongo
+from pymongo import MongoClient
+
 
 load_dotenv()
 
@@ -22,6 +25,12 @@ dataDict = {
 valContent = []
 valLeaderboard = []
 
+cluster = MongoClient(os.getenv("MONGO_URL")) #add connection url to .env
+server = cluster["servers"]
+valusernames = server["val-usernames"]
+
+
+#Discord Bot Startup
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
@@ -51,14 +60,56 @@ async def skull(ctx, userinput):
     except ValueError:
         await ctx.send("Not a number!")
 
+#Cases 1. No username 2. Not string 3. Username invalid format 4. Username belongs to someone else in server (allow them to take it) 4. user already has username stored
+@bot.command()
+async def valusername(ctx, arg: str = None):
+    if arg == None:
+        await ctx.send("No username entered") 
+    else:
+        try:
+            #mongodb lookup
+            search = ""
+            if arg == search:
+                await ctx.send("User already exists")
+            else:
+                myquery = { "_id": ctx.author.id }
+                if (valusernames.count_documents(myquery) == 0): #User does not exist in database
+
+                    post = {"_id": ctx.author.id, "valuser": arg}
+                    valusernames.insert_one(post)
+
+                    await ctx.send(arg + ": username is saved")
+                else:
+                    query = {"_id": ctx.author.id}
+                    newusername = { "$set": { "valuser": arg } }
+                    
+                    valusernames.update_one(query, newusername)
+                    await ctx.send(arg + ": username is updated")
+
+
+        except:
+            await ctx.send("Invalid username")
+
 # Make the bot faster at loading ranked info by:
 # 1. Storing user data into a database / 
 # Only call to make a request for valContent if the database / locally stored data is there are any changes in data
 @bot.command()
 async def valrank(ctx, *, username: str = None):
 
+    if username == None:
+        print("no username entered")
+        await ctx.send("No username entered")
+
         
-           
+        #Call to mongodb
+        #if username stored
+        #username = mongodb value
+        #else
+        #no username entered or stored, add username with ?valusername
+    else:
+                
+
+
         user = username.split("#")
 
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
@@ -97,8 +148,9 @@ async def valrank(ctx, *, username: str = None):
         embed.timestamp = datetime.datetime.utcnow()
         embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
 
-        if (len(valLeaderboard) == 0):
-            requestLeaderboardData()
+        #Comment out for no leaderboard
+        # if (len(valLeaderboard) == 0):
+            # requestLeaderboardData()
         
         
         rankNumber = findLeaderboardRanking(user[0], user[1])
@@ -131,11 +183,6 @@ async def valrank(ctx, *, username: str = None):
 
         await ctx.send(embed=embed)
         print("Successfully retrieved {}'s Stats!\n".format(user[0]))
-    # except:
-    #     await ctx.send("ERROR")
-
-# @bot.command()
-# async def valtop(ctx):
 
 def requestLeaderboardData():
     locale = "en-US"
@@ -187,9 +234,6 @@ def requestLeaderboardData():
         time.sleep(0.5)
 
 def findLeaderboardRanking(username, tag):
-    with open('data.json', 'w') as f:
-        json.dump(valLeaderboard, f)
-
     for dataGroup in valLeaderboard:
         for player in dataGroup:
             if (('gameName' in player) and ('tagLine' in player)):
