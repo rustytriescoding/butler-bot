@@ -9,7 +9,10 @@ import json
 
 load_dotenv()
 
-bot = commands.Bot(command_prefix='?')
+intents = discord.Intents.default()
+intents.members = True
+intents.presences = True
+bot = commands.Bot(command_prefix = "?", intents=intents)
 
 dataDict = { 
              'categories' : [],
@@ -24,8 +27,19 @@ valLeaderboard = []
 
 @bot.event
 async def on_ready():
-    print(f'Logged in as {bot.user} (ID: {bot.user.id})')
-    print('------')
+    # userID = 338492851040157696 -> for Baldar
+    # channelID = 831017916354920468 -> for lounge chat
+    userID = 235088799074484224
+    channelID = 977787584178708480
+    channel = bot.get_channel(channelID)
+
+    print(bot.user.name + ' is now online')
+    await channel.send('<@{}>'.format(userID) + ' Baldar Butler at your service!')
+
+    await bot.change_presence(
+        status = discord.Status.online,											                # Status: online, idle, dnd, invisible
+        activity = discord.Game('Baldar Butler at your Service!'),
+    )
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -55,19 +69,51 @@ async def skull(ctx, userinput):
     except ValueError:
         await ctx.send("Not a number!")
 
+@bot.command()
+async def status(ctx):
+    categories = ["Members", "Bots", "Online", "Offline"]
+    values = [0, 0, 0, 0]
+    imageURL = "https://cdn.discordapp.com/avatars/977770675584532520/1770496d2c1ec081b02a2f769d232c6e.webp?size=100"
+
+    for guild in bot.guilds:
+        for user in guild.members:
+            if (user.bot == False):
+                if (user.status != discord.Status.offline):
+                    onlineMembers += 1
+                else:
+                    offlineMembers += 1
+                memberCount += 1
+            else:
+                botCount += 1
+
+    embed = discord.Embed()
+    embed.title = "{} Server Status".format(ctx.guild.name)
+    embed.timestamp = datetime.datetime.utcnow()
+    embed.color = 0xf04e1f
+    embed.set_footer(text="\u200b", icon_url=imageURL)
+    # embed.add_field(name="{}\t{}\t{}\t{}".format(categories[0], categories[1], categories[2], categories[3]), value="{}\    \    {}{}{}".format(memberCount, botCount, onlineMembers, offlineMembers), inline=True)
+    embed.add_field(name="\u200b", value="\u200b")
+    embed.add_field(name=categories[0], value=values[0], inline=False)
+    embed.add_field(name=categories[1], value=values[1], inline=False)
+    embed.add_field(name=categories[2], value=values[2], inline=False)
+    embed.add_field(name=categories[3], value=values[3], inline=False)
+    embed.add_field(name="\u200b", value="\u200b")
+
+    await ctx.channel.send(embed=embed)
+
+
 # Make the bot faster at loading ranked info by:
 # 1. Storing user data into a database / 
 # Only call to make a request for valContent if the database / locally stored data is there are any changes in data
 @bot.command()
 async def valrank(ctx, *, username: str):
-    # try:
+    try:
         user = username.split("#")
 
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
         playerInfo = requests.get("https://api.henrikdev.xyz/valorant/v1/mmr/na/{}/{}".format(user[0], user[1]), headers=headers)
         ranks = requests.get("https://valorant-api.com/v1/competitivetiers", headers=headers)
         # valContent = requests.get("https://na.api.riotgames.com/val/content/v1/contents?locale={}&api_key={}".format(locale, os.getenv("VAL_API_KEY")))
-        # leaderboards = requests.get("https://na.api.riotgames.com/val/ranked/v1/leaderboards/by-act/{}?size=200&startIndex=200&api_key={}".format(os.getenv("VAL_API_KEY")), headers=headers)
 
         print("Retrieving {}'s Ranked Stats...".format(user[0]))
 
@@ -133,8 +179,8 @@ async def valrank(ctx, *, username: str):
 
         await ctx.send(embed=embed)
         print("Successfully retrieved {}'s Stats!\n".format(user[0]))
-    # except:
-    #     await ctx.send("ERROR")
+    except:
+        await ctx.send("ERROR")
 
 # @bot.command()
 # async def valtop(ctx):
@@ -176,7 +222,6 @@ def requestLeaderboardData():
         leaderboards = requests.get("https://na.api.riotgames.com/val/ranked/v1/leaderboards/by-act/{}?size={}&startIndex={}&api_key={}".format(currentActID, 200, i, os.getenv("VAL_API_KEY")), headers=headers)
         
         playerData = leaderboards.json()
-        # print(playerData['players'])
         if ('players' in playerData):
             valLeaderboard.append(playerData['players'])
         
