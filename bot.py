@@ -74,26 +74,28 @@ async def valusername(ctx, arg: str = None):
     if arg == None:
         await ctx.send("No username entered") 
     else:
-        
-        if arg == search:
-            query = {"_id": ctx.author.id}
-            newusername = { "$set": { "valuser": arg } }           
-            valusernames.update_one(query, newusername)
-            await ctx.send("Someone has this username, saving anyways")
-        else:
-            myquery = { "_id": ctx.author.id }
-            if (valusernames.count_documents(myquery) == 0): #User does not exist in database, saving new name
-
-                post = {"_id": ctx.author.id, "valuser": arg}
-                valusernames.insert_one(post)
-
-                await ctx.send(arg + ": username is saved")
-            else: #User exists in database, updating name
+        try:
+            if arg == search:
                 query = {"_id": ctx.author.id}
-                newusername = { "$set": { "valuser": arg } }
-                
+                newusername = { "$set": { "valuser": arg } }           
                 valusernames.update_one(query, newusername)
-                await ctx.send(arg + ": username is updated")
+                await ctx.send("Someone has this username, saving anyways")
+            else:
+                myquery = { "_id": ctx.author.id }
+                if (valusernames.count_documents(myquery) == 0): #User does not exist in database, saving new name
+
+                    post = {"_id": ctx.author.id, "valuser": arg}
+                    valusernames.insert_one(post)
+
+                    await ctx.send(arg + ": username is saved")
+                else: #User exists in database, updating name
+                    query = {"_id": ctx.author.id}
+                    newusername = { "$set": { "valuser": arg } }
+                    
+                    valusernames.update_one(query, newusername)
+                    await ctx.send(arg + ": username is updated")
+        except: 
+            await ctx.send("Invalid username")
     
 
 # Make the bot faster at loading ranked info by:
