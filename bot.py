@@ -60,7 +60,7 @@ async def skull(ctx, userinput):
     except ValueError:
         await ctx.send("Not a number!")
 
-#Cases 1. No username 2. Not string 3. Username invalid format 4. Username belongs to someone else in server (allow them to take it) 4. 
+#Cases 1. No username 2. Not string 3. Username invalid format 4. Username belongs to someone else in server (allow them to take it) 4. user already has username stored
 @bot.command()
 async def valusername(ctx, arg: str = None):
     if arg == None:
@@ -72,10 +72,20 @@ async def valusername(ctx, arg: str = None):
             if arg == search:
                 await ctx.send("User already exists")
             else:
-                post = {"_id": ctx.author.id, "valuser": arg}
-                valusernames.insert_one(post)
+                myquery = { "_id": ctx.author.id }
+                if (valusernames.count_documents(myquery) == 0): #User does not exist in database
 
-                await ctx.send(arg + " is saved")
+                    post = {"_id": ctx.author.id, "valuser": arg}
+                    valusernames.insert_one(post)
+
+                    await ctx.send(arg + ": username is saved")
+                else:
+                    query = {"_id": ctx.author.id}
+                    newusername = { "$set": { "valuser": arg } }
+                    
+                    valusernames.update_one(query, newusername)
+                    await ctx.send(arg + ": username is updated")
+
 
         except:
             await ctx.send("Invalid username")
@@ -90,6 +100,7 @@ async def valrank(ctx, *, username: str = None):
         print("no username entered")
         await ctx.send("No username entered")
 
+        
         #Call to mongodb
         #if username stored
         #username = mongodb value
