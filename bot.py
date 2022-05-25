@@ -26,8 +26,9 @@ dataDict = {
 valContent = []
 valLeaderboard = []
 
+#MongoDB variables
 cluster = MongoClient(os.getenv("MONGO_URL")) #add connection url to .env
-server = cluster["servers"]
+server = cluster["servers"] #WE NEED TO CHANGE THIS TO DISCORD SERVER ID SO EACH SERVER HAS UNIQUE SET OF DATA
 valusernames = server["val-usernames"]
 
 
