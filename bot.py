@@ -1,3 +1,4 @@
+from types import NoneType
 import discord
 from discord.ext import commands
 import os
@@ -63,32 +64,37 @@ async def skull(ctx, userinput):
 #Cases 1. No username 2. Not string 3. Username invalid format 4. Username belongs to someone else in server (allow them to take it) 4. user already has username stored
 @bot.command()
 async def valusername(ctx, arg: str = None):
+  
+    search = valusernames.find_one({"valuser" : arg}) #Searches if username exists in database
+    print(search)
+    if search != None:
+        search = str(search["valuser"]) #Converts val username to string
+
+
     if arg == None:
         await ctx.send("No username entered") 
     else:
-        try:
-            #mongodb lookup
-            search = ""
-            if arg == search:
-                await ctx.send("User already exists")
-            else:
-                myquery = { "_id": ctx.author.id }
-                if (valusernames.count_documents(myquery) == 0): #User does not exist in database
+        
+        if arg == search:
+            query = {"_id": ctx.author.id}
+            newusername = { "$set": { "valuser": arg } }           
+            valusernames.update_one(query, newusername)
+            await ctx.send("Someone has this username, saving anyways")
+        else:
+            myquery = { "_id": ctx.author.id }
+            if (valusernames.count_documents(myquery) == 0): #User does not exist in database, saving new name
 
-                    post = {"_id": ctx.author.id, "valuser": arg}
-                    valusernames.insert_one(post)
+                post = {"_id": ctx.author.id, "valuser": arg}
+                valusernames.insert_one(post)
 
-                    await ctx.send(arg + ": username is saved")
-                else:
-                    query = {"_id": ctx.author.id}
-                    newusername = { "$set": { "valuser": arg } }
-                    
-                    valusernames.update_one(query, newusername)
-                    await ctx.send(arg + ": username is updated")
-
-
-        except:
-            await ctx.send("Invalid username")
+                await ctx.send(arg + ": username is saved")
+            else: #User exists in database, updating name
+                query = {"_id": ctx.author.id}
+                newusername = { "$set": { "valuser": arg } }
+                
+                valusernames.update_one(query, newusername)
+                await ctx.send(arg + ": username is updated")
+    
 
 # Make the bot faster at loading ranked info by:
 # 1. Storing user data into a database / 
@@ -97,92 +103,96 @@ async def valusername(ctx, arg: str = None):
 async def valrank(ctx, *, username: str = None):
 
     if username == None:
-        print("no username entered")
-        await ctx.send("No username entered")
+        search = valusernames.find_one({"_id" : ctx.author.id}) #Searches if username exists in database
+        if search != None: #Discord user has a val name saved
+            search = str(search["valuser"]) #Converts val username to string
+            username = search
+
+              
+        else:
+            print("no username entered and no username stored. Add one by using ?valusername")
+            await ctx.send("no username entered and no username stored. Add one by using ?valusername")
+            return
 
         
-        #Call to mongodb
-        #if username stored
-        #username = mongodb value
-        #else
-        #no username entered or stored, add username with ?valusername
-    else:
+        
+    
                 
 
 
-        user = username.split("#")
+    user = username.split("#")
 
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
-        playerInfo = requests.get("https://api.henrikdev.xyz/valorant/v1/mmr/na/{}/{}".format(user[0], user[1]), headers=headers)
-        ranks = requests.get("https://valorant-api.com/v1/competitivetiers", headers=headers)
-        # valContent = requests.get("https://na.api.riotgames.com/val/content/v1/contents?locale={}&api_key={}".format(locale, os.getenv("VAL_API_KEY")))
-        # leaderboards = requests.get("https://na.api.riotgames.com/val/ranked/v1/leaderboards/by-act/{}?size=200&startIndex=200&api_key={}".format(os.getenv("VAL_API_KEY")), headers=headers)
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
+    playerInfo = requests.get("https://api.henrikdev.xyz/valorant/v1/mmr/na/{}/{}".format(user[0], user[1]), headers=headers)
+    ranks = requests.get("https://valorant-api.com/v1/competitivetiers", headers=headers)
+    # valContent = requests.get("https://na.api.riotgames.com/val/content/v1/contents?locale={}&api_key={}".format(locale, os.getenv("VAL_API_KEY")))
+    # leaderboards = requests.get("https://na.api.riotgames.com/val/ranked/v1/leaderboards/by-act/{}?size=200&startIndex=200&api_key={}".format(os.getenv("VAL_API_KEY")), headers=headers)
 
-        print("Retrieving {}'s Ranked Stats...".format(user[0]))
+    print("Retrieving {}'s Ranked Stats...".format(user[0]))
 
-        data = playerInfo.json()
-        data2 = ranks.json()
-        
-        c = 0
-        embed = discord.Embed()
+    data = playerInfo.json()
+    data2 = ranks.json()
+    
+    c = 0
+    embed = discord.Embed()
 
-        dataDict['categories'] = ["Rank", "Elo", "Last Match's Elo"]
-        dataDict['values'] = [str(data['data']['currenttierpatched']), str(data['data']['ranking_in_tier']), str(data['data']['mmr_change_to_last_game'])]
+    dataDict['categories'] = ["Rank", "Elo", "Last Match's Elo"]
+    dataDict['values'] = [str(data['data']['currenttierpatched']), str(data['data']['ranking_in_tier']), str(data['data']['mmr_change_to_last_game'])]
 
-        # Retrieves latest patch of ranked data and stores it locally (this way it runs faster without having to keep requesting from server)
-        if (len(dataDict['rankNames']) <= 0):
-            print("Retrieving New Valorant Data...")
+    # Retrieves latest patch of ranked data and stores it locally (this way it runs faster without having to keep requesting from server)
+    if (len(dataDict['rankNames']) <= 0):
+        print("Retrieving New Valorant Data...")
 
-            for i in data2['data'][-1]['tiers']:
-                if ((type(i['tierName']) == str) and (type(i['largeIcon']) == str) and (type(i['color']) == str)):
-                    dataDict['rankNames'].append(i['tierName'])
-                    dataDict['rankImgs'].append(i['largeIcon'])
-                    dataDict['rankColors'].append(i['color'])
-                else:
-                    continue
-        else:
-            print("Existing Valorant Data Found...")
-
-        print("Embedding Valorant Data...")
-        embed.title = "{}'s Ranked Stats".format(user[0])
-        embed.timestamp = datetime.datetime.utcnow()
-        embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
-
-        #Comment out for no leaderboard
-        # if (len(valLeaderboard) == 0):
-            # requestLeaderboardData()
-        
-        
-        rankNumber = findLeaderboardRanking(user[0], user[1])
-        lastElo = dataDict['values'][2]
-
-        print(int(lastElo) >= 0)
-
-        # Adds a number if they are on the leaderboard
-        if (rankNumber >= 1):
-            embed.add_field(name=dataDict['categories'][0], value="{} #{}".format(dataDict['values'][0], rankNumber), inline=False)
-        elif ((dataDict['values'][0].lower().find('immortal') == 0) or (dataDict['values'][0].lower().find('radiant') == 0)):
-            embed.add_field(name=dataDict['categories'][0], value="{} #?".format(dataDict['values'][0]), inline=False)
-        else:
-            embed.add_field(name=dataDict['categories'][0], value="{}".format(dataDict['values'][0]), inline=False)
-        
-
-        embed.add_field(name=dataDict['categories'][1], value="{} rr".format(dataDict['values'][1]), inline=False)
-        if (type(lastElo) is not None):
-            if (int(lastElo) >= 0):
-                embed.add_field(name=dataDict['categories'][2], value="+{} rr".format(lastElo), inline=False)
+        for i in data2['data'][-1]['tiers']:
+            if ((type(i['tierName']) == str) and (type(i['largeIcon']) == str) and (type(i['color']) == str)):
+                dataDict['rankNames'].append(i['tierName'])
+                dataDict['rankImgs'].append(i['largeIcon'])
+                dataDict['rankColors'].append(i['color'])
             else:
-                embed.add_field(name=dataDict['categories'][2], value="{} rr".format(lastElo), inline=False)
+                continue
+    else:
+        print("Existing Valorant Data Found...")
+
+    print("Embedding Valorant Data...")
+    embed.title = "{}'s Ranked Stats".format(user[0])
+    embed.timestamp = datetime.datetime.utcnow()
+    embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
+
+    #Comment out for no leaderboard
+    # if (len(valLeaderboard) == 0):
+        # requestLeaderboardData()
+    
+    
+    rankNumber = findLeaderboardRanking(user[0], user[1])
+    lastElo = dataDict['values'][2]
+
+    print(int(lastElo) >= 0)
+
+    # Adds a number if they are on the leaderboard
+    if (rankNumber >= 1):
+        embed.add_field(name=dataDict['categories'][0], value="{} #{}".format(dataDict['values'][0], rankNumber), inline=False)
+    elif ((dataDict['values'][0].lower().find('immortal') == 0) or (dataDict['values'][0].lower().find('radiant') == 0)):
+        embed.add_field(name=dataDict['categories'][0], value="{} #?".format(dataDict['values'][0]), inline=False)
+    else:
+        embed.add_field(name=dataDict['categories'][0], value="{}".format(dataDict['values'][0]), inline=False)
+    
+
+    embed.add_field(name=dataDict['categories'][1], value="{} rr".format(dataDict['values'][1]), inline=False)
+    if (type(lastElo) is not None):
+        if (int(lastElo) >= 0):
+            embed.add_field(name=dataDict['categories'][2], value="+{} rr".format(lastElo), inline=False)
         else:
             embed.add_field(name=dataDict['categories'][2], value="{} rr".format(lastElo), inline=False)
+    else:
+        embed.add_field(name=dataDict['categories'][2], value="{} rr".format(lastElo), inline=False)
 
-        for i in range(len(dataDict['rankImgs'])):
-            if (dataDict['values'][0].lower() == dataDict['rankNames'][i].lower()):
-                embed.color = int("0x" + str(dataDict['rankColors'][i][:6]), 16)
-                embed.set_thumbnail(url=dataDict['rankImgs'][i])
+    for i in range(len(dataDict['rankImgs'])):
+        if (dataDict['values'][0].lower() == dataDict['rankNames'][i].lower()):
+            embed.color = int("0x" + str(dataDict['rankColors'][i][:6]), 16)
+            embed.set_thumbnail(url=dataDict['rankImgs'][i])
 
-        await ctx.send(embed=embed)
-        print("Successfully retrieved {}'s Stats!\n".format(user[0]))
+    await ctx.send(embed=embed)
+    print("Successfully retrieved {}'s Stats!\n".format(user[0]))
 
 def requestLeaderboardData():
     locale = "en-US"
