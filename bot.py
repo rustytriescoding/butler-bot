@@ -22,6 +22,7 @@ dataDict = {
 valContent = []
 valLeaderboard = []
 
+#Discord Bot Startup
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
@@ -57,8 +58,19 @@ async def skull(ctx, userinput):
 @bot.command()
 async def valrank(ctx, *, username: str = None):
 
-        
-           
+    if username == None:
+        print("no username entered")
+        await ctx.send("No username entered")
+
+        #Call to mongodb
+        #if username stored
+        #username = mongodb value
+        #else
+        #no username entered or stored, add username with ?valusername
+    else:
+                
+
+
         user = username.split("#")
 
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
@@ -97,8 +109,9 @@ async def valrank(ctx, *, username: str = None):
         embed.timestamp = datetime.datetime.utcnow()
         embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
 
-        if (len(valLeaderboard) == 0):
-            requestLeaderboardData()
+        #Comment out for no leaderboard
+        # if (len(valLeaderboard) == 0):
+            # requestLeaderboardData()
         
         
         rankNumber = findLeaderboardRanking(user[0], user[1])
@@ -131,11 +144,6 @@ async def valrank(ctx, *, username: str = None):
 
         await ctx.send(embed=embed)
         print("Successfully retrieved {}'s Stats!\n".format(user[0]))
-    # except:
-    #     await ctx.send("ERROR")
-
-# @bot.command()
-# async def valtop(ctx):
 
 def requestLeaderboardData():
     locale = "en-US"
@@ -187,9 +195,6 @@ def requestLeaderboardData():
         time.sleep(0.5)
 
 def findLeaderboardRanking(username, tag):
-    with open('data.json', 'w') as f:
-        json.dump(valLeaderboard, f)
-
     for dataGroup in valLeaderboard:
         for player in dataGroup:
             if (('gameName' in player) and ('tagLine' in player)):
