@@ -6,6 +6,9 @@ import datetime
 from dotenv import load_dotenv
 import time
 import json
+import pymongo
+from pymongo import MongoClient
+
 
 load_dotenv()
 
@@ -21,6 +24,11 @@ dataDict = {
 
 valContent = []
 valLeaderboard = []
+
+cluster = MongoClient(os.getenv("MONGO_URL")) #add connection url to .env
+server = cluster["servers"]
+valusernames = server["val-usernames"]
+
 
 #Discord Bot Startup
 @bot.event
@@ -51,6 +59,26 @@ async def skull(ctx, userinput):
             await ctx.send(msg)
     except ValueError:
         await ctx.send("Not a number!")
+
+#Cases 1. No username 2. Not string 3. Username invalid format 4. Username belongs to someone else in server (allow them to take it) 4. 
+@bot.command()
+async def valusername(ctx, arg: str = None):
+    if arg == None:
+        await ctx.send("No username entered") 
+    else:
+        try:
+            #mongodb lookup
+            search = ""
+            if arg == search:
+                await ctx.send("User already exists")
+            else:
+                post = {"_id": ctx.author.id, "valuser": arg}
+                valusernames.insert_one(post)
+
+                await ctx.send(arg + " is saved")
+
+        except:
+            await ctx.send("Invalid username")
 
 # Make the bot faster at loading ranked info by:
 # 1. Storing user data into a database / 
