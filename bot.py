@@ -158,6 +158,7 @@ async def username(ctx, arg: str = None):
 async def rank(ctx, *, username: str = None):
     
     if username == None:
+        print(ctx.author.id)
         search = EF.scanval(valusernames, "_id", ctx.author.id, "valuser")
         print(search)
         if search != None:
@@ -168,16 +169,31 @@ async def rank(ctx, *, username: str = None):
             await ctx.send("no username entered and no username stored. Add one by using ?valusername")
             return
     else:
-        print("Input: " + str(username))
-        pattern = """[^!"$%&'()*+, -./:;<=>?@[]^_`{|}~]{3,16}#[a-zA-Z0-9]{1,5}"""
-
-        if(re.search(pattern, username)):
-            print("valid username")
-            user = username.split("#")
+        if "@" in username:
+            print("ping")
+            username = re.sub("[@<>]","", username)
+            print(username)
+            search = EF.scanval(valusernames, "_id", ctx.author.id, "valuser")
+            print(search)
+           
+            if search != None:
+            
+                user = search.split("#")
+            else:
+                print("no username entered and no username stored. Add one by using ?valusername")
+                await ctx.send("no username entered and no username stored. Add one by using ?valusername")
+                return
         else:
-            print("Invalid username")
-            await ctx.send("Invalid username")
-            return
+            print("Input: " + str(username))
+            pattern = "#[a-zA-Z0-9]"
+
+            if(re.search(pattern, username)):
+                print("valid username")
+                user = username.split("#")
+            else:
+                print("Invalid username")
+                await ctx.send("Invalid username")
+                return
 
 
 
