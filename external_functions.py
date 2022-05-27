@@ -65,6 +65,7 @@ def findLeaderboardRanking(username, tag):
                     return rankNumber
     return -1
 
+#Searches database for id column and data argument, returns out column value
 #I: MongoDB collection, data id, data argument 
 #O: out value
 def scanval(collection, id: str, data: str, out: str):
