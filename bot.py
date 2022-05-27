@@ -28,6 +28,8 @@ dataDict = {
            }
 valContent = []
 valLeaderboard = []
+userNamePattern = "^[^!\"\\#$%&'()*+,-./:;<=>?[\]@^_`{|}~]{3,16}#[a-zA-Z0-9]{1,5}"
+emojiFinderPattern = "[^\w\s^!\"\\#$%&'()*+,-./:;<=>?[\]@^_`{|}~]"
 
 cluster = MongoClient(os.getenv("MONGO_URL")) #add connection url to .env
 server = cluster["servers"]
@@ -52,31 +54,32 @@ async def on_ready():
 
 @bot.event
 async def on_command_error(ctx, error):
-    if (type(error) == discord.ext.commands.errors.CommandNotFound):
-        print(error)
+    print(error)
+    if isinstance(error, commands.CommandNotFound):
         await ctx.send(error)
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("There are 1 or more missing arguments!")
     else:
-        print(error)
         await ctx.send("There is an error with your command")
 
 @bot.command()
-async def skull(ctx, userinput):
+async def skull(ctx, userinput: str = None):
     try:
+        if userinput == None:
+            await ctx.send("Please enter a number between 1-2000")
+            return
+        
         num = int(userinput)
         if num < 1 or num > 2000:
-            num = 1
-            await ctx.send("Number out of range, number must be within 1-2000)")
-        else:    
-            msg = ''
-            for x in range(num):
-                msg += "💀"
-            await ctx.send(msg)
+            await ctx.send("Number out of range, number must be within 1-2000")
+        else:
+            await ctx.send('💀' * num)
     except ValueError:
         await ctx.send("Not a number!")
 
 @bot.command()
 async def status(ctx):
-    categories = ["Online", "Offline", "Members", "Bots", ]
+    categories = ["Online", "Offline", "Members", "Bots"]
     values = [0, 0, 0, 0]
     imageURL = "https://cdn.discordapp.com/avatars/977770675584532520/1770496d2c1ec081b02a2f769d232c6e.webp?size=100"
 
@@ -115,40 +118,61 @@ async def val(ctx):
 # 3. Username invalid format
 # 4. Username belongs to someone else in server (allow them to take it)
 # 5. user already has username stored
+
+# Test Cases
+# 1.         < 3 chars
+# 2.           3 chars
+# 3.  > 3 & < 16 chars
+# 4.          16 chars
+# 5.        > 16 chars
+# 6. Punctuation
+# 7. Emojis
+# 8. Pings / server channels
+# 9. No hashtag
+# 10. No argument provided
+# 11. Alphanumeric only (1-5 chars) for tagline
+# 12. Alphanumeric including weird symbols like (ツ, ｔｈｉｓ ｔｅｘｔ, etc)
+# 13. Spaces between names
 @val.command()
-async def username(ctx, arg: str = None):
+async def username(ctx, *, arg: str = None):
     # search = valusernames.find_one({"valuser" : arg}) #Searches if username exists in database
     # if search != None:
     #     search = str(search["valuser"]) #Converts val username to string
 
+    # Arg only picks up on the (v1 for v1 zander#swag)
     search = EF.scanval(valusernames, "valuser", arg, "valuser")
     
-
     if arg == None:
         await ctx.send("No username entered") 
     else:
         try:
-            if arg == search:
-                query = {"_id": ctx.author.id}
-                newusername = { "$set": { "valuser": arg } }           
-                valusernames.update_one(query, newusername)
-                await ctx.send("Someone has this username, saving anyways")
-            else:
-                myquery = { "_id": ctx.author.id }
-                if (valusernames.count_documents(myquery) == 0): #User does not exist in database, saving new name
+            if ((len(re.findall(userNamePattern, arg)) == 1) and (len(re.findall(emojiFinderPattern, arg)) == 0)):
+                print("This username is valid!")
 
-                    post = {"_id": ctx.author.id, "valuser": arg}
-                    valusernames.insert_one(post)
-
-                    await ctx.send(arg + ": username is saved")
-                else: #User exists in database, updating name
+                if arg == search:
                     query = {"_id": ctx.author.id}
-                    newusername = { "$set": { "valuser": arg } }
-                    
+                    newusername = { "$set": { "valuser": arg } }           
                     valusernames.update_one(query, newusername)
-                    await ctx.send(arg + ": username is updated")
+                    await ctx.send("Someone has this username, saving anyways")
+                else:
+                    myquery = { "_id": ctx.author.id }
+                    if (valusernames.count_documents(myquery) == 0): #User does not exist in database, saving new name
+
+                        post = {"_id": ctx.author.id, "valuser": arg}
+                        valusernames.insert_one(post)
+
+                        await ctx.send(arg + ": username is saved")
+                    else: #User exists in database, updating name
+                        query = {"_id": ctx.author.id}
+                        newusername = { "$set": { "valuser": arg } }
+                        
+                        valusernames.update_one(query, newusername)
+                        await ctx.send(arg + ": username is updated")
+            else:
+                print("This username is invalid!")
+                await ctx.send("Please enter a valid username")
         except: 
-            await ctx.send("Invalid username")
+            await ctx.send("Please enter a valid username")
     
 
 # Make the bot faster at loading ranked info by:
@@ -157,6 +181,8 @@ async def username(ctx, arg: str = None):
 @val.command()
 async def rank(ctx, *, username: str = None):
     
+    print(username)
+
     if username == None:
         print(ctx.author.id)
         search = EF.scanval(valusernames, "_id", ctx.author.id, "valuser")
@@ -177,7 +203,6 @@ async def rank(ctx, *, username: str = None):
             print(search)
            
             if search != None:
-            
                 user = search.split("#")
             else:
                 print("no username entered and no username stored. Add one by using ?valusername")
@@ -185,9 +210,8 @@ async def rank(ctx, *, username: str = None):
                 return
         else:
             print("Input: " + str(username))
-            pattern = "#[a-zA-Z0-9]"
 
-            if(re.search(pattern, username)):
+            if(re.search(userNamePattern, username)):
                 print("valid username")
                 user = username.split("#")
             else:
