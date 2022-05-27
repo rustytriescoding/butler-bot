@@ -37,6 +37,8 @@ valusernames = server["val-usernames"]
 async def on_ready():
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
     print('------')
+    
+
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -46,6 +48,7 @@ async def on_command_error(ctx, error):
     else:
         print(error)
         await ctx.send("There is an error with your command")
+
 
 @bot.command()
 async def skull(ctx, userinput):
@@ -62,9 +65,17 @@ async def skull(ctx, userinput):
     except ValueError:
         await ctx.send("Not a number!")
 
+@bot.group()
+async def val(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send('Invalid Val command passed')        
+        await ctx.send('Commands:')    
+        await ctx.send('?val rank')    
+        await ctx.send('?val username')    
+
 #Cases 1. No username 2. Not string 3. Username invalid format 4. Username belongs to someone else in server (allow them to take it) 4. user already has username stored
-@bot.command()
-async def valusername(ctx, arg: str = None):
+@val.command()
+async def username(ctx, arg: str = None):
   
     search = valusernames.find_one({"valuser" : arg}) #Searches if username exists in database
     print(search)
@@ -102,8 +113,8 @@ async def valusername(ctx, arg: str = None):
 # Make the bot faster at loading ranked info by:
 # 1. Storing user data into a database / 
 # Only call to make a request for valContent if the database / locally stored data is there are any changes in data
-@bot.command()
-async def valrank(ctx, *, username: str = None):
+@val.command()
+async def rank(ctx, *, username: str = None):
 
     if username == None:
         search = valusernames.find_one({"_id" : ctx.author.id}) #Searches if username exists in database
