@@ -64,3 +64,12 @@ def findLeaderboardRanking(username, tag):
                     print("{}#{} has been found! They are top #{}".format(player['gameName'], player['tagLine'], rankNumber))
                     return rankNumber
     return -1
+
+#I: MongoDB collection, data id, data argument 
+#O: out value
+def scanval(collection, id: str, data: str, out: str):
+    query = collection.find_one({id : data}) 
+    if query != None:
+        return str(query[out]) 
+    else:
+        return None
