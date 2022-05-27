@@ -171,9 +171,9 @@ async def rank(ctx, *, username: str = None):
     else:
         if "@" in username:
             print("ping")
-            username = re.sub("[@<>]","", username)
+            username = int(re.sub("[@<>]","", username))
             print(username)
-            search = EF.scanval(valusernames, "_id", ctx.author.id, "valuser")
+            search = EF.scanval(valusernames, "_id", username, "valuser")
             print(search)
            
             if search != None:
