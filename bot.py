@@ -77,6 +77,7 @@ async def skull(ctx, userinput: str = None):
     except ValueError:
         await ctx.send("Not a number!")
 
+#test comment
 @bot.command()
 async def status(ctx):
     categories = ["Online", "Offline", "Members", "Bots"]
