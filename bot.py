@@ -82,9 +82,8 @@ async def plottest(ctx):
     ]
 
 
-    df = pd.DataFrame({'A': [1, 3, 9, 5, 2, 1, 1],
-                    'B': [4, 5, 5, 7, 9, 8, 6]})
-
+    df = pd.DataFrame({'Net Elo': [10, -20, 19, 15, -20, 16, 17]})
+                    
     fig, ax = plt.subplots()
 
     df.plot(marker='o', color=colors, ax=ax)
@@ -114,7 +113,7 @@ async def plottest(ctx):
     ax.grid(color='#2A3459')
 
     ax.set_xlim([ax.get_xlim()[0] - 0.2, ax.get_xlim()[1] + 0.2])  # to not have the markers cut off
-    ax.set_ylim(0)
+    # ax.set_ylim(0)
     plt.savefig("test.png")
     plt.close()
     image = discord.File("test.png")
