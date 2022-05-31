@@ -173,7 +173,7 @@ async def username(ctx, *, arg: str = None):
                 await ctx.send("Please enter a valid username")
         except: 
             await ctx.send("Please enter a valid username")
-    
+
 
 # Make the bot faster at loading ranked info by:
 # 1. Storing user data into a database / 
