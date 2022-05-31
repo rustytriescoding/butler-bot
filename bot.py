@@ -9,6 +9,7 @@ import time
 import json
 import pymongo
 from pymongo import MongoClient
+import re
 import external_functions as EF
 
 load_dotenv()
@@ -116,10 +117,12 @@ async def val(ctx):
 # 5. user already has username stored
 @val.command()
 async def username(ctx, arg: str = None):
-    search = valusernames.find_one({"valuser" : arg}) #Searches if username exists in database
-    # print(search)
-    if search != None:
-        search = str(search["valuser"]) #Converts val username to string
+    # search = valusernames.find_one({"valuser" : arg}) #Searches if username exists in database
+    # if search != None:
+    #     search = str(search["valuser"]) #Converts val username to string
+
+    search = EF.scanval(valusernames, "valuser", arg, "valuser")
+    
 
     if arg == None:
         await ctx.send("No username entered") 
@@ -153,90 +156,115 @@ async def username(ctx, arg: str = None):
 # Only call to make a request for valContent if the database / locally stored data is there are any changes in data
 @val.command()
 async def rank(ctx, *, username: str = None):
-
+    
     if username == None:
-        search = valusernames.find_one({"_id" : ctx.author.id}) #Searches if username exists in database
-        if search != None: #Discord user has a val name saved
-            search = str(search["valuser"]) #Converts val username to string
-            username = search
-        
+        print(ctx.author.id)
+        search = EF.scanval(valusernames, "_id", ctx.author.id, "valuser")
+        print(search)
+        if search != None:
+            
+            user = search.split("#")
         else:
             print("no username entered and no username stored. Add one by using ?valusername")
             await ctx.send("no username entered and no username stored. Add one by using ?valusername")
             return
-
-    try:
-
-        user = username.split("#")
-
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
-        playerInfo = requests.get("https://api.henrikdev.xyz/valorant/v1/mmr/na/{}/{}".format(user[0], user[1]), headers=headers)
-        ranks = requests.get("https://valorant-api.com/v1/competitivetiers", headers=headers)
-        # valContent = requests.get("https://na.api.riotgames.com/val/content/v1/contents?locale={}&api_key={}".format(locale, os.getenv("VAL_API_KEY")))
-        # leaderboards = requests.get("https://na.api.riotgames.com/val/ranked/v1/leaderboards/by-act/{}?size=200&startIndex=200&api_key={}".format(os.getenv("VAL_API_KEY")), headers=headers)
-
-        print("Retrieving {}'s Ranked Stats...".format(user[0]))
-
-        data = playerInfo.json()
-        data2 = ranks.json()
-        
-        embed = discord.Embed()
-
-        dataDict['categories'] = ["Rank", "Elo", "Last Match's Elo"]
-        dataDict['values'] = [str(data['data']['currenttierpatched']), str(data['data']['ranking_in_tier']), str(data['data']['mmr_change_to_last_game'])]
-
-        # Retrieves latest patch of ranked data and stores it locally (this way it runs faster without having to keep requesting from server)
-        if (len(dataDict['rankNames']) <= 0):
-            print("Retrieving New Valorant Data...")
-
-            for i in data2['data'][-1]['tiers']:
-                if ((type(i['tierName']) == str) and (type(i['largeIcon']) == str) and (type(i['color']) == str)):
-                    dataDict['rankNames'].append(i['tierName'])
-                    dataDict['rankImgs'].append(i['largeIcon'])
-                    dataDict['rankColors'].append(i['color'])
-                else:
-                    continue
-        else:
-            print("Existing Valorant Data Found...")
-
-        print("Embedding Valorant Data...")
-        embed.title = "{}'s Ranked Stats".format(user[0])
-        embed.timestamp = datetime.datetime.utcnow()
-        embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
-
-        # Comment out for no leaderboard number for immortal+ players
-        # if (len(valLeaderboard) == 0):
-            # EF.requestLeaderboardData()
-        
-        rankNumber = EF.findLeaderboardRanking(user[0], user[1])
-        lastElo = dataDict['values'][2]
-
-        # Adds a number if they are on the leaderboard
-        if (rankNumber >= 1):
-            embed.add_field(name=dataDict['categories'][0], value="{} #{}".format(dataDict['values'][0], rankNumber), inline=False)
-        elif ((dataDict['values'][0].lower().find('immortal') == 0) or (dataDict['values'][0].lower().find('radiant') == 0)):
-            embed.add_field(name=dataDict['categories'][0], value="{} #?".format(dataDict['values'][0]), inline=False)
-        else:
-            embed.add_field(name=dataDict['categories'][0], value="{}".format(dataDict['values'][0]), inline=False)
-        
-
-        embed.add_field(name=dataDict['categories'][1], value="{} rr".format(dataDict['values'][1]), inline=False)
-        if (type(lastElo) is not None):
-            if (int(lastElo) >= 0):
-                embed.add_field(name=dataDict['categories'][2], value="+{} rr".format(lastElo), inline=False)
+    else:
+        if "@" in username:
+            print("ping")
+            username = int(re.sub("[@<>]","", username))
+            print(username)
+            search = EF.scanval(valusernames, "_id", username, "valuser")
+            print(search)
+           
+            if search != None:
+            
+                user = search.split("#")
             else:
-                embed.add_field(name=dataDict['categories'][2], value="{} rr".format(lastElo), inline=False)
+                print("no username entered and no username stored. Add one by using ?valusername")
+                await ctx.send("no username entered and no username stored. Add one by using ?valusername")
+                return
+        else:
+            print("Input: " + str(username))
+            pattern = "#[a-zA-Z0-9]"
+
+            if(re.search(pattern, username)):
+                print("valid username")
+                user = username.split("#")
+            else:
+                print("Invalid username")
+                await ctx.send("Invalid username")
+                return
+
+
+
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
+    playerInfo = requests.get("https://api.henrikdev.xyz/valorant/v1/mmr/na/{}/{}".format(user[0], user[1]), headers=headers)
+    ranks = requests.get("https://valorant-api.com/v1/competitivetiers", headers=headers)
+    # valContent = requests.get("https://na.api.riotgames.com/val/content/v1/contents?locale={}&api_key={}".format(locale, os.getenv("VAL_API_KEY")))
+    # leaderboards = requests.get("https://na.api.riotgames.com/val/ranked/v1/leaderboards/by-act/{}?size=200&startIndex=200&api_key={}".format(os.getenv("VAL_API_KEY")), headers=headers)
+
+    print("Retrieving {}'s Ranked Stats...".format(user[0]))
+
+    data = playerInfo.json()
+    data2 = ranks.json()
+    
+    embed = discord.Embed()
+
+    dataDict['categories'] = ["Rank", "Elo", "Last Match's Elo"]
+    dataDict['values'] = [str(data['data']['currenttierpatched']), str(data['data']['ranking_in_tier']), str(data['data']['mmr_change_to_last_game'])]
+
+    # Retrieves latest patch of ranked data and stores it locally (this way it runs faster without having to keep requesting from server)
+    if (len(dataDict['rankNames']) <= 0):
+        print("Retrieving New Valorant Data...")
+
+        for i in data2['data'][-1]['tiers']:
+            if ((type(i['tierName']) == str) and (type(i['largeIcon']) == str) and (type(i['color']) == str)):
+                dataDict['rankNames'].append(i['tierName'])
+                dataDict['rankImgs'].append(i['largeIcon'])
+                dataDict['rankColors'].append(i['color'])
+            else:
+                continue
+    else:
+        print("Existing Valorant Data Found...")
+
+    print("Embedding Valorant Data...")
+    embed.title = "{}'s Ranked Stats".format(user[0])
+    embed.timestamp = datetime.datetime.utcnow()
+    embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
+
+    # Comment out for no leaderboard number for immortal+ players
+    # if (len(valLeaderboard) == 0):
+        # EF.requestLeaderboardData()
+    
+    rankNumber = EF.findLeaderboardRanking(user[0], user[1])
+    lastElo = dataDict['values'][2]
+
+    # Adds a number if they are on the leaderboard
+    if (rankNumber >= 1):
+        embed.add_field(name=dataDict['categories'][0], value="{} #{}".format(dataDict['values'][0], rankNumber), inline=False)
+    elif ((dataDict['values'][0].lower().find('immortal') == 0) or (dataDict['values'][0].lower().find('radiant') == 0)):
+        embed.add_field(name=dataDict['categories'][0], value="{} #?".format(dataDict['values'][0]), inline=False)
+    else:
+        embed.add_field(name=dataDict['categories'][0], value="{}".format(dataDict['values'][0]), inline=False)
+    
+
+    embed.add_field(name=dataDict['categories'][1], value="{} rr".format(dataDict['values'][1]), inline=False)
+    if (type(lastElo) is not None):
+        if (int(lastElo) >= 0):
+            embed.add_field(name=dataDict['categories'][2], value="+{} rr".format(lastElo), inline=False)
         else:
             embed.add_field(name=dataDict['categories'][2], value="{} rr".format(lastElo), inline=False)
+    else:
+        embed.add_field(name=dataDict['categories'][2], value="{} rr".format(lastElo), inline=False)
 
-        for i in range(len(dataDict['rankImgs'])):
-            if (dataDict['values'][0].lower() == dataDict['rankNames'][i].lower()):
-                embed.color = int("0x" + str(dataDict['rankColors'][i][:6]), 16)
-                embed.set_thumbnail(url=dataDict['rankImgs'][i])
+    for i in range(len(dataDict['rankImgs'])):
+        if (dataDict['values'][0].lower() == dataDict['rankNames'][i].lower()):
+            embed.color = int("0x" + str(dataDict['rankColors'][i][:6]), 16)
+            embed.set_thumbnail(url=dataDict['rankImgs'][i])
 
-        await ctx.send(embed=embed)
-        print("Successfully retrieved {}'s Stats!\n".format(user[0]))
-    except:
-        await ctx.send("Invalid Username")
+    await ctx.send(embed=embed)
+    print("Successfully retrieved {}'s Stats!\n".format(user[0]))
+
+    
 
 bot.run(os.getenv("DISCORD_TOKEN"))
