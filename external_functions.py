@@ -69,8 +69,7 @@ def findLeaderboardRanking(username, tag):
 #I: MongoDB collection, data id, data argument 
 #O: out value
 def scanval(collection, id: str, data: str, out: str):
-    query = collection.find_one({id : data}) 
+    query = collection.find_one({id : data})
     if query != None:
-        return str(query[out]) 
-    else:
-        return None
+        return str(query[out])
+    return None
