@@ -10,6 +10,8 @@ import json
 import pymongo
 from pymongo import MongoClient
 import re
+import matplotlib.pyplot as plt
+import numpy as np
 import external_functions as EF
 
 load_dotenv()
@@ -38,8 +40,6 @@ valusernames = server["val-usernames"]
 #Discord Bot Startup
 @bot.event
 async def on_ready():
-    # userID = 338492851040157696 -> for Baldar
-    # channelID = 831017916354920468 -> for lounge chat
     userID = 235088799074484224
     channelID = 977787584178708480
     channel = bot.get_channel(channelID)
@@ -48,10 +48,11 @@ async def on_ready():
     await channel.send('Baldar Butler at your service!')
 
     await bot.change_presence(
-        status = discord.Status.online,											                # Status: online, idle, dnd, invisible
+        status = discord.Status.online,	
         activity = discord.Game('Baldar Butler at your Service!'),
     )
 
+#Error checking
 @bot.event
 async def on_command_error(ctx, error):
     print(error)
@@ -62,6 +63,20 @@ async def on_command_error(ctx, error):
     else:
         await ctx.send("There is an error with your command")
 
+@bot.command()
+async def plottest(ctx, *args):
+    x = args
+    
+    plt.bar(np.arange(len(x)), x)
+    plt.savefig("test.png")
+    plt.close()
+    image = discord.File("test.png")
+    await ctx.send(file=image)
+
+
+#Prints the skull emoji for the specified amount of times
+#I: Number of skull emojis to print
+#O: Prints skull emojis
 @bot.command()
 async def skull(ctx, userinput: str = None):
     try:
