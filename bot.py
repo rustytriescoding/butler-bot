@@ -45,7 +45,7 @@ async def on_ready():
     channel = bot.get_channel(channelID)
 
     print(bot.user.name + ' is now online')
-    await channel.send('<@{}>'.format(userID) + ' Baldar Butler at your service!')
+    await channel.send('Baldar Butler at your service!')
 
     await bot.change_presence(
         status = discord.Status.online,											                # Status: online, idle, dnd, invisible
