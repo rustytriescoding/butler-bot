@@ -36,7 +36,7 @@ emojiFinderPattern = "[^\w\s^!\"\\#$%&'()*+,-./:;<=>?[\]@^_`{|}~]"
 
 cluster = MongoClient(os.getenv("MONGO_URL")) #add connection url to .env
 server = cluster["servers"]
-valusernames = server["val-usernames"]
+valusernames = server["val-data"]
 
 #Discord Bot Startup
 @bot.event
@@ -65,7 +65,7 @@ async def on_command_error(ctx, error):
         await ctx.send("There is an error with your command")
 
 @bot.command()
-async def plottest(ctx):
+async def plot(ctx):
     plt.style.use("dark_background")
 
     for param in ['text.color', 'axes.labelcolor', 'xtick.color', 'ytick.color']:
@@ -74,6 +74,8 @@ async def plottest(ctx):
     for param in ['figure.facecolor', 'axes.facecolor', 'savefig.facecolor']:
         plt.rcParams[param] = '#212946'  # bluish dark grey
 
+    elo = [10, -20, 19, 15, -20, 16, 17, -21]
+
     colors = [
         '#08F7FE',  # teal/cyan
         '#FE53BB',  # pink
@@ -81,8 +83,9 @@ async def plottest(ctx):
         '#00ff41',  # matrix green
     ]
 
+    
 
-    df = pd.DataFrame({'Net Elo': [10, -20, 19, 15, -20, 16, 17]})
+    df = pd.DataFrame({'Net Elo': elo})
                     
     fig, ax = plt.subplots()
 
@@ -110,9 +113,21 @@ async def plottest(ctx):
     #                     color=color,
     #                     alpha=0.1)
 
+    plt.xlabel("Match")
+    plt.ylabel("Elo")
+
     ax.grid(color='#2A3459')
 
     ax.set_xlim([ax.get_xlim()[0] - 0.2, ax.get_xlim()[1] + 0.2])  # to not have the markers cut off
+
+    # ax.spines['top'].set_visible(False)
+    # ax.spines['right'].set_visible(False)
+    # ax.spines['bottom'].set_visible(False)
+    # ax.spines['left'].set_visible(False)
+
+
+    # ax.get_xaxis().set_ticks([])
+    # ax.get_yaxis().set_ticks([])
     # ax.set_ylim(0)
     plt.savefig("test.png")
     plt.close()
@@ -196,7 +211,7 @@ async def val(ctx):
 # 13. Spaces between names
 @val.command()
 async def username(ctx, *, arg: str = None):
-    # search = valusernames.find_one({"valuser" : arg}) #Searches if username exists in database
+    # search = valdata.find_one({"valuser" : arg}) #Searches if username exists in database
     # if search != None:
     #     search = str(search["valuser"]) #Converts val username to string
 
