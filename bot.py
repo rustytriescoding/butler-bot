@@ -1,4 +1,3 @@
-from types import NoneType
 import discord
 from discord.ext import commands
 import os
@@ -28,7 +27,7 @@ dataDict = {
            }
 valContent = []
 valLeaderboard = []
-userNamePattern = "^[^!\"\\#$%&'()*+,-./:;<=>?[\]@^_`{|}~]{3,16}#[a-zA-Z0-9]{1,5}"
+userNamePattern = "^[^!\"\\#$%&'()*+,-./:;<=>?[\]@^_`{|}~]{3,16}#[a-zA-Z0-9]{1,5}$"
 emojiFinderPattern = "[^\w\s^!\"\\#$%&'()*+,-./:;<=>?[\]@^_`{|}~]"
 
 cluster = MongoClient(os.getenv("MONGO_URL")) #add connection url to .env
@@ -77,7 +76,6 @@ async def skull(ctx, userinput: str = None):
     except ValueError:
         await ctx.send("Not a number!")
 
-#test comment
 @bot.command()
 async def status(ctx):
     categories = ["Online", "Offline", "Members", "Bots"]
@@ -144,11 +142,18 @@ async def username(ctx, *, arg: str = None):
     search = EF.scanval(valusernames, "valuser", arg, "valuser")
     
     if arg == None:
-        await ctx.send("No username entered") 
+        search = EF.scanval(valusernames, "_id",  ctx.author.id, "valuser")
+        if search == None:
+            await ctx.send("No username is linked to your name".format(ctx.author.name))
+        else:
+            await ctx.send("The linked username is: {}".format(search))
+        # await ctx.send("No username entered")
     else:
         try:
             if ((len(re.findall(userNamePattern, arg)) == 1) and (len(re.findall(emojiFinderPattern, arg)) == 0)):
                 print("This username is valid!")
+                print(re.findall(userNamePattern, arg))
+                print(re.findall(emojiFinderPattern, arg))
 
                 if arg == search:
                     query = {"_id": ctx.author.id}
@@ -261,10 +266,16 @@ async def rank(ctx, *, username: str = None):
     # if (len(valLeaderboard) == 0):
         # EF.requestLeaderboardData()
     
+    print("Finding leaderboard ranking...")
     rankNumber = EF.findLeaderboardRanking(user[0], user[1])
     lastElo = dataDict['values'][2]
 
+    # if ((rank is None) or (elo is None) or (lastElo is None)):
+
+
+
     # Adds a number if they are on the leaderboard
+    print("Embedding leaderboard ranking...")
     if (rankNumber >= 1):
         embed.add_field(name=dataDict['categories'][0], value="{} #{}".format(dataDict['values'][0], rankNumber), inline=False)
     elif ((dataDict['values'][0].lower().find('immortal') == 0) or (dataDict['values'][0].lower().find('radiant') == 0)):
@@ -272,9 +283,14 @@ async def rank(ctx, *, username: str = None):
     else:
         embed.add_field(name=dataDict['categories'][0], value="{}".format(dataDict['values'][0]), inline=False)
     
-
+    print("Embedding elo...")
     embed.add_field(name=dataDict['categories'][1], value="{} rr".format(dataDict['values'][1]), inline=False)
-    if (type(lastElo) is not None):
+    print("Embedding last elo...")
+
+    if ((type(lastElo) is not None) and (not lastElo)):
+        print(type(lastElo))
+        print(lastElo)
+        print(int(lastElo))
         if (int(lastElo) >= 0):
             embed.add_field(name=dataDict['categories'][2], value="+{} rr".format(lastElo), inline=False)
         else:
@@ -282,6 +298,7 @@ async def rank(ctx, *, username: str = None):
     else:
         embed.add_field(name=dataDict['categories'][2], value="{} rr".format(lastElo), inline=False)
 
+    print("Changing Embed Color...")
     for i in range(len(dataDict['rankImgs'])):
         if (dataDict['values'][0].lower() == dataDict['rankNames'][i].lower()):
             embed.color = int("0x" + str(dataDict['rankColors'][i][:6]), 16)

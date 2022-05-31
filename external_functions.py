@@ -65,11 +65,22 @@ def findLeaderboardRanking(username, tag):
                     return rankNumber
     return -1
 
-#Searches database for id column and data argument, returns out column value
-#I: MongoDB collection, data id, data argument 
-#O: out value
+# Searches database for id column and data argument, returns out column value
+# I: 1. Server Collection
+#   2. Property Name: "_id"
+#   3. Value of Property: "_id" (Discord ID)
+#   4. Property Name: "valuser"
+# O: Value of Property: "valuser" (Valorant Username attached to Discord ID)
 def scanval(collection, id: str, data: str, out: str):
     query = collection.find_one({id : data})
-    if query != None:
+    if ((query != None) and (out in query.keys())):
         return str(query[out])
     return None
+
+def findProfilePrivacy(playerRank, playerElo, playerLastElo):
+    print(playerRank)
+    print(playerElo)
+    print(playerLastElo)
+    if (playerRank is None) or (playerElo is None) or (playerLastElo is None):
+        return True
+    return False
