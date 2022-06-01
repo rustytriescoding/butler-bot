@@ -64,75 +64,6 @@ async def on_command_error(ctx, error):
     else:
         await ctx.send("There is an error with your command")
 
-@bot.command()
-async def plot(ctx):
-    plt.style.use("dark_background")
-
-    for param in ['text.color', 'axes.labelcolor', 'xtick.color', 'ytick.color']:
-        plt.rcParams[param] = '0.9'  # very light grey
-
-    for param in ['figure.facecolor', 'axes.facecolor', 'savefig.facecolor']:
-        plt.rcParams[param] = '#212946'  # bluish dark grey
-
-    elo = [10, -20, 19, 15, -20, 16, 17, -21]
-
-    colors = [
-        '#08F7FE',  # teal/cyan
-        '#FE53BB',  # pink
-        '#F5D300',  # yellow
-        '#00ff41',  # matrix green
-    ]
-
-    
-
-    df = pd.DataFrame({'Net Elo': elo})
-                    
-    fig, ax = plt.subplots()
-
-    df.plot(marker='o', color=colors, ax=ax)
-
-    # Redraw the data with low alpha and slighty increased linewidth:
-    n_shades = 10
-    diff_linewidth = 1.05
-    alpha_value = 0.3 / n_shades
-
-    for n in range(1, n_shades+1):
-
-        df.plot(marker='o',
-                linewidth=2+(diff_linewidth*n),
-                alpha=alpha_value,
-                legend=False,
-                ax=ax,
-                color=colors)
-
-    # Color the areas below the lines:
-    # for column, color in zip(df, colors):
-    #     ax.fill_between(x=df.index,
-    #                     y1=df[column].values,
-    #                     y2=[0] * len(df),
-    #                     color=color,
-    #                     alpha=0.1)
-
-    plt.xlabel("Match")
-    plt.ylabel("Elo")
-
-    ax.grid(color='#2A3459')
-
-    ax.set_xlim([ax.get_xlim()[0] - 0.2, ax.get_xlim()[1] + 0.2])  # to not have the markers cut off
-
-    # ax.spines['top'].set_visible(False)
-    # ax.spines['right'].set_visible(False)
-    # ax.spines['bottom'].set_visible(False)
-    # ax.spines['left'].set_visible(False)
-
-
-    # ax.get_xaxis().set_ticks([])
-    # ax.get_yaxis().set_ticks([])
-    # ax.set_ylim(0)
-    plt.savefig("test.png")
-    plt.close()
-    image = discord.File("test.png")
-    await ctx.send(file=image)
 
 
 #Prints the skull emoji for the specified amount of times
@@ -365,6 +296,139 @@ async def rank(ctx, *, username: str = None):
     await ctx.send(embed=embed)
     print("Successfully retrieved {}'s Stats!\n".format(user[0]))
 
+
+@val.command()
+async def comp(ctx, *, username: str = None):
+    plt.style.use("dark_background")
+
+    for param in ['text.color', 'axes.labelcolor', 'xtick.color', 'ytick.color']:
+        plt.rcParams[param] = '0.9'  # very light grey
+
+    for param in ['figure.facecolor', 'axes.facecolor', 'savefig.facecolor']:
+        plt.rcParams[param] = '#212946'  # bluish dark grey
+
+    if username == None:
+        print(ctx.author.id)
+        search = EF.scanval(valusernames, "_id", ctx.author.id, "valuser")
+        print(search)
+        if search != None:
+            
+            user = search.split("#")
+        else:
+            print("no username entered and no username stored. Add one by using ?valusername")
+            await ctx.send("no username entered and no username stored. Add one by using ?valusername")
+            return
+    else:
+        if "@" in username:
+            print("ping")
+            username = int(re.sub("[@<>]","", username))
+            print(username)
+            search = EF.scanval(valusernames, "_id", username, "valuser")
+            print(search)
+           
+            if search != None:
+                user = search.split("#")
+            else:
+                print("no username entered and no username stored. Add one by using ?valusername")
+                await ctx.send("no username entered and no username stored. Add one by using ?valusername")
+                return
+        else:
+            print("Input: " + str(username))
+
+            if(re.search(userNamePattern, username)):
+                print("valid username")
+                user = username.split("#")
+            else:
+                print("Invalid username")
+                await ctx.send("Invalid username")
+                return
+
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
+    playerInfo = requests.get("https://api.henrikdev.xyz/valorant/v1/mmr-history/na/{}/{}".format(user[0], user[1]), headers=headers)
+    playerData = playerInfo.json()
+
+    elo = []
+    match = []
+    netElo = 0
+
+    for match in playerData['data']:
+        print(int(match['mmr_change_to_last_game']))
+        netElo += int(match['mmr_change_to_last_game'])
+        elo.append(netElo)        
+    # match.extend(range(1, len(elo)))
+    # print(match)
+
+     
+
+
+
+
+
+
+
+
+    # elo = [10, -20, 19, 15, -20, 16, 17, -21]
+
+    colors = [
+        '#08F7FE',  # teal/cyan
+        '#FE53BB',  # pink
+        '#F5D300',  # yellow
+        '#00ff41',  # matrix green
+    ]
+
+    df = pd.DataFrame({'Net Elo': elo})
+    # colors = np.where(df[elo] < 0, '#00ff41', '#FE53BB')
     
+
+
+    
+                    
+    fig, ax = plt.subplots()
+
+    df.plot(marker='o', color=colors, ax=ax)
+
+    # Redraw the data with low alpha and slighty increased linewidth:
+    n_shades = 10
+    diff_linewidth = 1.05
+    alpha_value = 0.3 / n_shades
+
+    for n in range(1, n_shades+1):
+
+        df.plot(marker='o',
+                linewidth=2+(diff_linewidth*n),
+                alpha=alpha_value,
+                legend=False,
+                ax=ax,
+                color=colors)
+
+    # Color the areas below the lines:
+    # for column, color in zip(df, colors):
+    #     ax.fill_between(x=df.index,
+    #                     y1=df[column].values,
+    #                     y2=[0] * len(df),
+    #                     color=color,
+    #                     alpha=0.1)
+
+    plt.xlabel("Match")
+    plt.ylabel("Elo")
+
+    ax.grid(color='#2A3459')
+
+    ax.set_xlim([ax.get_xlim()[0] - 0.2, ax.get_xlim()[1] + 0.2])  # to not have the markers cut off
+    
+    # ax.spines['top'].set_visible(False)
+    # ax.spines['right'].set_visible(False)
+    # ax.spines['bottom'].set_visible(False)
+    # ax.spines['left'].set_visible(False)
+
+
+    # ax.get_xaxis().set_ticks([])
+    # ax.get_yaxis().set_ticks([])
+    # ax.set_ylim(0)
+    plt.savefig("test.png") #, transparent=True
+    plt.close()
+    image = discord.File("test.png")
+    await ctx.send(file=image)    
+
 
 bot.run(os.getenv("DISCORD_TOKEN"))

@@ -73,3 +73,6 @@ def scanval(collection, id: str, data: str, out: str):
     if query != None:
         return str(query[out])
     return None
+
+# def usernameCheck(arg, name):
+   
