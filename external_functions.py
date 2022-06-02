@@ -76,6 +76,9 @@ def scanval(collection, id: str, data: str, out: str):
 
 # def usernameCheck(arg, name):
    
+#Retrieves JSON data from api urls
+#I: url string key, player username, player tag, gamemode
+#O: JSON data from api 
 def retrieveData(url, username=None, tag=None, gamemode=None):
     urls = {
         "accountData" : "https://api.henrikdev.xyz/valorant/v1/account/{}/{}".format(username, tag),
@@ -94,15 +97,3 @@ def retrieveData(url, username=None, tag=None, gamemode=None):
     data = requests.get(urls[url], headers=headers)
     return data.json()
     
-
-    # playerInfo = requests.get("https://api.henrikdev.xyz/valorant/v1/mmr/na/{}/{}".format(user[0], user[1]), headers=headers)
-    # ranks = requests.get("https://valorant-api.com/v1/competitivetiers", headers=headers)
-    # # valContent = requests.get("https://na.api.riotgames.com/val/content/v1/contents?locale={}&api_key={}".format(locale, os.getenv("VAL_API_KEY")))
-    # # leaderboards = requests.get("https://na.api.riotgames.com/val/ranked/v1/leaderboards/by-act/{}?size=200&startIndex=200&api_key={}".format(os.getenv("VAL_API_KEY")), headers=headers)
-
-    # print("Retrieving {}'s Ranked Stats...".format(user[0]))
-
-    # data = playerInfo.json()
-    # data2 = ranks.json()
-
-    # return 
