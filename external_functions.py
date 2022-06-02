@@ -76,12 +76,12 @@ def scanval(collection, id: str, data: str, out: str):
 
 # def usernameCheck(arg, name):
    
-def retrieveData(url, username: str=None, tag: str=None, gamemode: str=None):
+def retrieveData(url, username=None, tag=None, gamemode=None):
     urls = {
         "accountData" : "https://api.henrikdev.xyz/valorant/v1/account/{}/{}".format(username, tag),
         "mmrData" : "https://api.henrikdev.xyz/valorant/v1/mmr/na/{}/{}".format(username, tag),
         "mmrHistory" : "https://api.henrikdev.xyz/valorant/v1/mmr-history/na/{}/{}".format(username, tag),
-        # "matchHistory" : "https://api.henrikdev.xyz/valorant/v3/matches/na/{}/{}{}".format(username, tag, "?filter="+gamemode),
+        "matchHistory" : "https://api.henrikdev.xyz/valorant/v3/matches/na/{}/{}{}".format(username, tag, "?filter="+str(gamemode)),
         "serverStatus" : "https://api.henrikdev.xyz/valorant/v1/status/na",
         "content" : "https://api.henrikdev.xyz/valorant/v1/content",
         "storeOffers" : "https://api.henrikdev.xyz/valorant/v1/store-offers",
