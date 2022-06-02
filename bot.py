@@ -319,7 +319,7 @@ async def comp(ctx, *, username=None):
     # elo = [10, -20, 19, 15, -20, 16, 17, -21]
 
     colors = [
-        '#08F7FE',  # teal/cyan
+        # '#08F7FE',  # teal/cyan
         '#FE53BB',  # pink
         '#F5D300',  # yellow
         '#00ff41',  # matrix green
@@ -351,12 +351,12 @@ async def comp(ctx, *, username=None):
                 color=colors)
 
     # Color the areas below the lines:
-    # for column, color in zip(df, colors):
-    #     ax.fill_between(x=df.index,
-    #                     y1=df[column].values,
-    #                     y2=[0] * len(df),
-    #                     color=color,
-    #                     alpha=0.1)
+    for column, color in zip(df, colors):
+        ax.fill_between(x=df.index,
+                        y1=df[column].values,
+                        y2=[0] * len(df),
+                        color=color,
+                        alpha=0.1)
 
     plt.xlabel("Match")
     plt.ylabel("Elo")
@@ -365,15 +365,18 @@ async def comp(ctx, *, username=None):
 
     ax.set_xlim([ax.get_xlim()[0] - 0.2, ax.get_xlim()[1] + 0.2])  # to not have the markers cut off
     
-    # ax.spines['top'].set_visible(False)
-    # ax.spines['right'].set_visible(False)
-    # ax.spines['bottom'].set_visible(False)
-    # ax.spines['left'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_visible(False)
 
-
+    
     # ax.get_xaxis().set_ticks([])
     # ax.get_yaxis().set_ticks([])
     # ax.set_ylim(0)
+
+    plt.axhline(y=0, color = 'w', linestyle='-')
+
     plt.savefig("test.png") #, transparent=True
     plt.close()
     image = discord.File("test.png")
