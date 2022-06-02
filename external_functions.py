@@ -4,8 +4,11 @@ import os
 import requests
 import datetime
 import time
+import re
 
 valLeaderboard = []
+
+
 
 def requestLeaderboardData():
     locale = "en-US"
@@ -74,7 +77,35 @@ def scanval(collection, id: str, data: str, out: str):
         return str(query[out])
     return None
 
-# def usernameCheck(arg, name):
+#Checks if username argument is empty, ping, name
+#I: server database, player username, message author id
+#O: username array or error codes 0(empty), 1(ping doesnt have username stored), 2(invalid name)
+def usernameCheck(database, name, id):
+
+    userNamePattern = "^[^!\"\\#$%&'()*+,-./:;<=>?[\]@^_`{|}~]{3,16}#[a-zA-Z0-9]{1,5}"
+    
+    if name == None:  
+        search = scanval(database, "_id", id, "valuser")
+        if search != None:         
+            user = search.split("#")
+            return user
+        else:
+            return 0
+    else:
+        if "@" in name:         
+            name = int(re.sub("[@<>]","", name))    
+            search = scanval(database, "_id", name, "valuser")         
+            if search != None:
+                user = search.split("#")
+                return user
+            else:
+                return 1
+        else:
+            if(re.search(userNamePattern, name)):
+                user = name.split("#")
+                return user
+            else:
+                return 2
    
 #Retrieves JSON data from api urls
 #I: url string key, player username, player tag, gamemode
@@ -93,7 +124,7 @@ def retrieveData(url, username=None, tag=None, gamemode=None):
     }
 
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
-
     data = requests.get(urls[url], headers=headers)
+
     return data.json()
     

@@ -186,47 +186,22 @@ async def username(ctx, *, arg: str = None):
 # 1. Storing user data into a database / 
 # Only call to make a request for valContent if the database / locally stored data is there are any changes in data
 @val.command()
-async def rank(ctx, *, username: str = None):
+async def rank(ctx, *, username=None):
     
-    print(username)
+    user = EF.usernameCheck(valusernames, username, ctx.author.id)
 
-    if username == None:
-        print(ctx.author.id)
-        search = EF.scanval(valusernames, "_id", ctx.author.id, "valuser")
-        print(search)
-        if search != None:
-            
-            user = search.split("#")
-        else:
-            print("no username entered and no username stored. Add one by using ?valusername")
-            await ctx.send("no username entered and no username stored. Add one by using ?valusername")
-            return
-    else:
-        if "@" in username:
-            print("ping")
-            username = int(re.sub("[@<>]","", username))
-            print(username)
-            search = EF.scanval(valusernames, "_id", username, "valuser")
-            print(search)
-           
-            if search != None:
-                user = search.split("#")
-            else:
-                print("no username entered and no username stored. Add one by using ?valusername")
-                await ctx.send("no username entered and no username stored. Add one by using ?valusername")
-                return
-        else:
-            print("Input: " + str(username))
+    if user == 0:
+        await ctx.send("You have no username stored. Add one by using ?val username")
+        return
+    elif user == 1:
+        await ctx.send("No username stored on this account. Add one by using ?val username")
+        return
+    elif user == 2:
+        await ctx.send("Invalid username entered")
+        return
+    
 
-            if(re.search(userNamePattern, username)):
-                print("valid username")
-                user = username.split("#")
-            else:
-                print("Invalid username")
-                await ctx.send("Invalid username")
-                return
-
-    print("Retrieving {}'s Ranked Stats...".format(user[0]))
+    # print("Retrieving {}'s Ranked Stats...".format(user[0]))
 
     data = EF.retrieveData("mmrData", user[0], user[1])
     data2 = EF.retrieveData("ranks")
@@ -238,7 +213,7 @@ async def rank(ctx, *, username: str = None):
 
     # Retrieves latest patch of ranked data and stores it locally (this way it runs faster without having to keep requesting from server)
     if (len(dataDict['rankNames']) <= 0):
-        print("Retrieving New Valorant Data...")
+        # print("Retrieving New Valorant Data...")
 
         for i in data2['data'][-1]['tiers']:
             if ((type(i['tierName']) == str) and (type(i['largeIcon']) == str) and (type(i['color']) == str)):
@@ -290,7 +265,7 @@ async def rank(ctx, *, username: str = None):
 
 
 @val.command()
-async def comp(ctx, *, username: str = None):
+async def comp(ctx, *, username=None):
     plt.style.use("dark_background")
 
     for param in ['text.color', 'axes.labelcolor', 'xtick.color', 'ytick.color']:
@@ -299,41 +274,17 @@ async def comp(ctx, *, username: str = None):
     for param in ['figure.facecolor', 'axes.facecolor', 'savefig.facecolor']:
         plt.rcParams[param] = '#212946'  # bluish dark grey
 
-    if username == None:
-        print(ctx.author.id)
-        search = EF.scanval(valusernames, "_id", ctx.author.id, "valuser")
-        print(search)
-        if search != None:
-            
-            user = search.split("#")
-        else:
-            print("no username entered and no username stored. Add one by using ?valusername")
-            await ctx.send("no username entered and no username stored. Add one by using ?valusername")
-            return
-    else:
-        if "@" in username:
-            print("ping")
-            username = int(re.sub("[@<>]","", username))
-            print(username)
-            search = EF.scanval(valusernames, "_id", username, "valuser")
-            print(search)
-           
-            if search != None:
-                user = search.split("#")
-            else:
-                print("no username entered and no username stored. Add one by using ?valusername")
-                await ctx.send("no username entered and no username stored. Add one by using ?valusername")
-                return
-        else:
-            print("Input: " + str(username))
+    user = EF.usernameCheck(valusernames, username, ctx.author.id)
 
-            if(re.search(userNamePattern, username)):
-                print("valid username")
-                user = username.split("#")
-            else:
-                print("Invalid username")
-                await ctx.send("Invalid username")
-                return
+    if user == 0:
+        await ctx.send("You have no username stored. Add one by using ?val username")
+        return
+    elif user == 1:
+        await ctx.send("No username stored on this account. Add one by using ?val username")
+        return
+    elif user == 2:
+        await ctx.send("Invalid username entered")
+        return
 
     playerData = EF.retrieveData("mmrHistory", user[0], user[1])
 
@@ -342,7 +293,7 @@ async def comp(ctx, *, username: str = None):
     netElo = 0
 
     for match in playerData['data']:
-        print(int(match['mmr_change_to_last_game']))
+        # print(int(match['mmr_change_to_last_game']))
         netElo += int(match['mmr_change_to_last_game'])
         elo.append(netElo)        
     # match.extend(range(1, len(elo)))
