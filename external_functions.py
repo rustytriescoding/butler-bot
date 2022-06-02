@@ -76,3 +76,24 @@ def scanval(collection, id: str, data: str, out: str):
 
 # def usernameCheck(arg, name):
    
+#Retrieves JSON data from api urls
+#I: url string key, player username, player tag, gamemode
+#O: JSON data from api 
+def retrieveData(url, username=None, tag=None, gamemode=None):
+    urls = {
+        "accountData" : "https://api.henrikdev.xyz/valorant/v1/account/{}/{}".format(username, tag),
+        "mmrData" : "https://api.henrikdev.xyz/valorant/v1/mmr/na/{}/{}".format(username, tag),
+        "mmrHistory" : "https://api.henrikdev.xyz/valorant/v1/mmr-history/na/{}/{}".format(username, tag),
+        "matchHistory" : "https://api.henrikdev.xyz/valorant/v3/matches/na/{}/{}{}".format(username, tag, "?filter="+str(gamemode)),
+        "serverStatus" : "https://api.henrikdev.xyz/valorant/v1/status/na",
+        "content" : "https://api.henrikdev.xyz/valorant/v1/content",
+        "storeOffers" : "https://api.henrikdev.xyz/valorant/v1/store-offers",
+        "storeFeatured" : "https://api.henrikdev.xyz/valorant/v1/store-featured",
+        "ranks" : "https://valorant-api.com/v1/competitivetiers"
+    }
+
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
+
+    data = requests.get(urls[url], headers=headers)
+    return data.json()
+    
