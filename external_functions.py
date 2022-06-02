@@ -76,3 +76,33 @@ def scanval(collection, id: str, data: str, out: str):
 
 # def usernameCheck(arg, name):
    
+def retrieveData(url, username: str=None, tag: str=None, gamemode: str=None):
+    urls = {
+        "accountData" : "https://api.henrikdev.xyz/valorant/v1/account/{}/{}".format(username, tag),
+        "mmrData" : "https://api.henrikdev.xyz/valorant/v1/mmr/na/{}/{}".format(username, tag),
+        "mmrHistory" : "https://api.henrikdev.xyz/valorant/v1/mmr-history/na/{}/{}".format(username, tag),
+        # "matchHistory" : "https://api.henrikdev.xyz/valorant/v3/matches/na/{}/{}{}".format(username, tag, "?filter="+gamemode),
+        "serverStatus" : "https://api.henrikdev.xyz/valorant/v1/status/na",
+        "content" : "https://api.henrikdev.xyz/valorant/v1/content",
+        "storeOffers" : "https://api.henrikdev.xyz/valorant/v1/store-offers",
+        "storeFeatured" : "https://api.henrikdev.xyz/valorant/v1/store-featured",
+        "ranks" : "https://valorant-api.com/v1/competitivetiers"
+    }
+
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
+
+    data = requests.get(urls[url], headers=headers)
+    return data.json()
+    
+
+    # playerInfo = requests.get("https://api.henrikdev.xyz/valorant/v1/mmr/na/{}/{}".format(user[0], user[1]), headers=headers)
+    # ranks = requests.get("https://valorant-api.com/v1/competitivetiers", headers=headers)
+    # # valContent = requests.get("https://na.api.riotgames.com/val/content/v1/contents?locale={}&api_key={}".format(locale, os.getenv("VAL_API_KEY")))
+    # # leaderboards = requests.get("https://na.api.riotgames.com/val/ranked/v1/leaderboards/by-act/{}?size=200&startIndex=200&api_key={}".format(os.getenv("VAL_API_KEY")), headers=headers)
+
+    # print("Retrieving {}'s Ranked Stats...".format(user[0]))
+
+    # data = playerInfo.json()
+    # data2 = ranks.json()
+
+    # return 
