@@ -376,9 +376,9 @@ async def comp(ctx, *, username=None):
         
     plt.axhline(y=0, color = 'w', linestyle='-')
 
-    plt.savefig("test.png") #, transparent=True
+    plt.savefig("valcomp.png") #, transparent=True
     plt.close()
-    image = discord.File("test.png")
+    image = discord.File("valcomp.png")
     await ctx.send(file=image)    
 
 
