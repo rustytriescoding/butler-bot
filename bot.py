@@ -371,10 +371,9 @@ async def comp(ctx, *, username=None):
     ax.spines['left'].set_visible(False)
 
     
-    # ax.get_xaxis().set_ticks([])
-    # ax.get_yaxis().set_ticks([])
-    # ax.set_ylim(0)
-
+    plt.tick_params(left=False)
+    plt.tick_params(bottom=False)
+        
     plt.axhline(y=0, color = 'w', linestyle='-')
 
     plt.savefig("test.png") #, transparent=True
