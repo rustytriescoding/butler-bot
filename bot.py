@@ -277,13 +277,13 @@ async def comp(ctx, *, username=None):
     user = EF.usernameCheck(valusernames, username, ctx.author.id)
 
     if user == 0:
-        await ctx.send("no username entered and no username stored. Add one by using ?valusername")
+        await ctx.send("You have no username stored. Add one by using ?val username")
         return
     elif user == 1:
-        await ctx.send("no username entered and no username stored. Add one by using ?valusername")
+        await ctx.send("No username stored on this account. Add one by using ?val username")
         return
     elif user == 2:
-        await ctx.send("Invalid username")
+        await ctx.send("Invalid username entered")
         return
 
     playerData = EF.retrieveData("mmrHistory", user[0], user[1])
