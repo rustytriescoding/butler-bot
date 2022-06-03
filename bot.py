@@ -1,3 +1,4 @@
+from turtle import color
 from types import NoneType
 import discord
 from discord.ext import commands
@@ -203,19 +204,19 @@ async def rank(ctx, *, username=None):
 
     # print("Retrieving {}'s Ranked Stats...".format(user[0]))
 
-    data = EF.retrieveData("mmrData", user[0], user[1])
-    data2 = EF.retrieveData("ranks")
+    mmrData = EF.retrieveData("mmrData", user[0], user[1])
+    ranks = EF.retrieveData("ranks")
     
     embed = discord.Embed()
 
     dataDict['categories'] = ["Rank", "Elo", "Last Match's Elo"]
-    dataDict['values'] = [str(data['data']['currenttierpatched']), str(data['data']['ranking_in_tier']), str(data['data']['mmr_change_to_last_game'])]
+    dataDict['values'] = [str(mmrData['data']['currenttierpatched']), str(mmrData['data']['ranking_in_tier']), str(mmrData['data']['mmr_change_to_last_game'])]
 
     # Retrieves latest patch of ranked data and stores it locally (this way it runs faster without having to keep requesting from server)
     if (len(dataDict['rankNames']) <= 0):
         # print("Retrieving New Valorant Data...")
 
-        for i in data2['data'][-1]['tiers']:
+        for i in ranks['data'][-1]['tiers']:
             if ((type(i['tierName']) == str) and (type(i['largeIcon']) == str) and (type(i['color']) == str)):
                 dataDict['rankNames'].append(i['tierName'])
                 dataDict['rankImgs'].append(i['largeIcon'])
@@ -266,16 +267,7 @@ async def rank(ctx, *, username=None):
 
 @val.command()
 async def comp(ctx, *, username=None):
-    plt.style.use("dark_background")
-
-    for param in ['text.color', 'axes.labelcolor', 'xtick.color', 'ytick.color']:
-        plt.rcParams[param] = '0.9'  # very light grey
-
-    for param in ['figure.facecolor', 'axes.facecolor', 'savefig.facecolor']:
-        plt.rcParams[param] = '#212946'  # bluish dark grey
-
     user = EF.usernameCheck(valusernames, username, ctx.author.id)
-
     if user == 0:
         await ctx.send("You have no username stored. Add one by using ?val username")
         return
@@ -291,7 +283,9 @@ async def comp(ctx, *, username=None):
     elo = []
     match = []
     netElo = 0
+    matches = 0
 
+<<<<<<< HEAD
 
 
     # for match in playerData['data']:
@@ -308,16 +302,45 @@ async def comp(ctx, *, username=None):
         netElo += int(playerData['data'][match -1]['mmr_change_to_last_game'])
         elo.append(netElo)
 
+=======
+    for match in playerData['data']:
+        # print(int(match['mmr_change_to_last_game']))
+        netElo += int(match['mmr_change_to_last_game'])
+        elo.append(netElo)
+        matches += 1
+        # print(match)
+    # match.extend(range(1, len(elo)))
+    
+>>>>>>> 817b2ff (Fixed length of x-axis line and font size)
+
+    df = pd.DataFrame({'Net Elo': elo})
+    # colors = np.where(df[elo] < 0, '#00ff41', '#FE53BB')
+    
+
+
+    # All the available preset themes to choose from 
+    # [‘Solarize_Light2’, ‘_classic_test_patch’, ‘bmh’, ‘classic’, ‘dark_background’, ‘fast’, ‘fivethirtyeight’, ‘ggplot’, ’grayscale’, ’seaborn’, ’seaborn-bright’, 
+    # ’seaborn-colorblind’, ‘seaborn-dark’, ‘seaborn-dark-palette’, ‘seaborn-darkgrid’, ‘seaborn-deep’, ‘seaborn-muted’, ‘seaborn-notebook’, ‘seaborn-paper’, ‘seaborn-pastel’,
+    # ‘seaborn-poster’,’seaborn-talk’,’seaborn-ticks’,’seaborn-white’,’seaborn-whitegrid’,’tableau-colorblind10′]
+    
+    # (useless because of 2nd for param loop which already sets bg color)
+    # plt.style.use("dark_background")
+    # plt.style.use("Solarize_Light2")
+
+    # Change font to 15px
+    plt.rcParams["font.size"] = 15
+
+    # This changes the colour of all the text fonts and legend outline
+    for param in ['text.color', 'axes.labelcolor', 'xtick.color', 'ytick.color']:
+        plt.rcParams[param] = '0.9'  # very light grey
+
+    # This changes the colour of the entire background
+    for param in ['figure.facecolor', 'axes.facecolor', 'savefig.facecolor']:
+        plt.rcParams[param] = '#000000' #212946   # bluish dark grey
 
 
 
-
-
-
-
-
-    # elo = [10, -20, 19, 15, -20, 16, 17, -21]
-
+    # The colors after pink only work if there is multiple lines for the graph
     colors = [
         # '#08F7FE',  # teal/cyan
         '#FE53BB',  # pink
@@ -325,13 +348,10 @@ async def comp(ctx, *, username=None):
         '#00ff41',  # matrix green
     ]
 
-    df = pd.DataFrame({'Net Elo': elo})
-    # colors = np.where(df[elo] < 0, '#00ff41', '#FE53BB')
-    
 
 
-    
-                    
+
+    # Creates the glow effect which stacks multiple lines on top of each other
     fig, ax = plt.subplots()
 
     df.plot(marker='o', color=colors, ax=ax)
@@ -342,13 +362,36 @@ async def comp(ctx, *, username=None):
     alpha_value = 0.3 / n_shades
 
     for n in range(1, n_shades+1):
-
         df.plot(marker='o',
                 linewidth=2+(diff_linewidth*n),
                 alpha=alpha_value,
                 legend=False,
                 ax=ax,
                 color=colors)
+
+
+
+
+    # Threshold to start changing colors
+    # threshold = 0
+    # elo = np.array(elo)
+
+    # Masked arrays ignore values:
+    # <= threshold --> ignore values <= threshold
+    # >= threshold --> ignore values >= threshold
+    # eloMaskedUpper = np.ma.masked_less_equal(elo, threshold)
+    # eloMaskedLower = np.ma.masked_greater_equal(elo, threshold)
+    # mask1 = elo >= 0
+    # mask2 = elo < 0
+
+    # fig, ax = plt.subplots()
+
+
+
+
+
+
+
 
     # Color the areas below the lines:
     for column, color in zip(df, colors):
@@ -362,19 +405,24 @@ async def comp(ctx, *, username=None):
     plt.ylabel("Elo")
 
     ax.grid(color='#2A3459')
-
+    
     ax.set_xlim([ax.get_xlim()[0] - 0.2, ax.get_xlim()[1] + 0.2])  # to not have the markers cut off
     
+    # Removes all of the axes from the graph
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['bottom'].set_visible(False)
     ax.spines['left'].set_visible(False)
 
-    
+    # Removes the tiny white ticks from x & y axes
     plt.tick_params(left=False)
     plt.tick_params(bottom=False)
-        
-    plt.axhline(y=0, color = 'w', linestyle='-')
+
+    # Adds horizontal line at y=0
+    ax.hlines(y=0, xmin=0, xmax=matches-1, color='w')
+
+    # Adjusts the x-axis to start at match 1 instead of 0
+    plt.xticks(np.arange(matches), np.arange(1, matches+1))
 
     plt.savefig("valcomp.png") #, transparent=True
     plt.close()
