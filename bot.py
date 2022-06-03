@@ -285,7 +285,6 @@ async def comp(ctx, *, username=None):
     netElo = 0
     matches = 0
 
-<<<<<<< HEAD
 
 
     # for match in playerData['data']:
@@ -302,16 +301,6 @@ async def comp(ctx, *, username=None):
         netElo += int(playerData['data'][match -1]['mmr_change_to_last_game'])
         elo.append(netElo)
 
-=======
-    for match in playerData['data']:
-        # print(int(match['mmr_change_to_last_game']))
-        netElo += int(match['mmr_change_to_last_game'])
-        elo.append(netElo)
-        matches += 1
-        # print(match)
-    # match.extend(range(1, len(elo)))
-    
->>>>>>> 817b2ff (Fixed length of x-axis line and font size)
 
     df = pd.DataFrame({'Net Elo': elo})
     # colors = np.where(df[elo] < 0, '#00ff41', '#FE53BB')
@@ -321,8 +310,7 @@ async def comp(ctx, *, username=None):
     # All the available preset themes to choose from 
     # [‘Solarize_Light2’, ‘_classic_test_patch’, ‘bmh’, ‘classic’, ‘dark_background’, ‘fast’, ‘fivethirtyeight’, ‘ggplot’, ’grayscale’, ’seaborn’, ’seaborn-bright’, 
     # ’seaborn-colorblind’, ‘seaborn-dark’, ‘seaborn-dark-palette’, ‘seaborn-darkgrid’, ‘seaborn-deep’, ‘seaborn-muted’, ‘seaborn-notebook’, ‘seaborn-paper’, ‘seaborn-pastel’,
-    # ‘seaborn-poster’,’seaborn-talk’,’seaborn-ticks’,’seaborn-white’,’seaborn-whitegrid’,’tableau-colorblind10′]
-    
+    # ‘seaborn-poster’,’seaborn-talk’,’seaborn-ticks’,’seaborn-white’,’seaborn-whitegrid’,’tableau-colorblind10′] 
     # (useless because of 2nd for param loop which already sets bg color)
     # plt.style.use("dark_background")
     # plt.style.use("Solarize_Light2")
