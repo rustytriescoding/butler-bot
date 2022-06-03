@@ -292,14 +292,22 @@ async def comp(ctx, *, username=None):
     match = []
     netElo = 0
 
-    for match in playerData['data']:
-        # print(int(match['mmr_change_to_last_game']))
-        netElo += int(match['mmr_change_to_last_game'])
-        elo.append(netElo)        
+
+
+    # for match in playerData['data']:
+    #     netElo += int(match['mmr_change_to_last_game'])
+    #     print("Elo per match" + str(match['mmr_change_to_last_game']))
+    #     elo.insert(len(elo), netElo)       
+    #     print(netElo)
+
     # match.extend(range(1, len(elo)))
     # print(match)
 
-     
+
+    for match in range(len(playerData['data']), 0, -1):
+        netElo += int(playerData['data'][match -1]['mmr_change_to_last_game'])
+        elo.append(netElo)
+
 
 
 
