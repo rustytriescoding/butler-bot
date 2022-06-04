@@ -282,17 +282,18 @@ async def comp(ctx, *, username=None):
 
     validThemes = ['stock', 'neon']
     themes = {
+               'xAxisColour' : '#FBFCFE',
                validThemes[0] : {
-                                  'textColour' : '#FBFCFE',
+                                  'textColour' : '#FBFCFE',                 #
                                   'bgColour' : '#12121A',
                                   'gridLineColour' : '#FBFCFE',
-                                  'lineGraphColours' : ['#338C53', '#DA5F61']
+                                  'graphColours' : ['#338C53', '#DA5F61']
                                 },
                validThemes[1] : {
-                                  'textColour' : '#FBFCFE',
-                                  'bgColour' : '#212946',
-                                  'gridLineColour' : '#2F3C69',
-                                  'lineGraphColours' : ['#08F7FE', '#FE53BB'] # 1st is positive elo, 2nd is negative elo
+                                  'textColour' : '#FBFCFE',                 # light gray
+                                  'bgColour' : '#212946',                   # darker purplish blue 
+                                  'gridLineColour' : '#2F3C69',             # light purplish blue
+                                  'graphColours' : ['#08F7FE', '#FE53BB']   # turquoise(positive elo), pink (negative elo)
                                 }
              }
     currentTheme = 'neon' # make a function to retrieve current selected theme / change selected theme
@@ -343,7 +344,7 @@ async def comp(ctx, *, username=None):
     fig, ax = plt.subplots()
 
     # df.plot(marker='o', color=colors, ax=ax)
-    df.plot(marker='o', color=themes[currentTheme]['lineGraphColours'], ax=ax)
+    df.plot(marker='o', color=themes[currentTheme]['graphColours'], ax=ax)
 
     # Redraw the data with low alpha and slighty increased linewidth:
     n_shades = 10
@@ -356,7 +357,7 @@ async def comp(ctx, *, username=None):
                 alpha=alpha_value,
                 legend=False,
                 ax=ax,
-                color=themes[currentTheme]['lineGraphColours'])
+                color=themes[currentTheme]['graphColours'])
 
 
     
@@ -405,7 +406,7 @@ async def comp(ctx, *, username=None):
     plt.tick_params(bottom=False)
 
     # Adds horizontal line at y=0
-    ax.hlines(y=0, xmin=0, xmax=matches-1, color='#051d73')
+    ax.hlines(y=0, xmin=0, xmax=matches-1, color=themes['xAxisColour'], linestyle="--")
 
     # Adjusts the x-axis to start at match 1 instead of 0
     plt.xticks(np.arange(matches), np.arange(1, matches+1))
