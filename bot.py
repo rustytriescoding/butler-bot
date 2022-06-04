@@ -356,7 +356,7 @@ async def comp(ctx, *, username=None):
                 alpha=alpha_value,
                 legend=False,
                 ax=ax,
-                color=colors)
+                color=themes[currentTheme]['lineGraphColours'])
 
 
     
