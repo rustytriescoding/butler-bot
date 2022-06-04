@@ -280,23 +280,29 @@ async def comp(ctx, *, username=None):
 
     playerData = EF.retrieveData("mmrHistory", user[0], user[1])
 
-    validThemes = ['stock', 'neon']
+    validThemes = ['stock', 'neon', 'cyberpunk']
     themes = {
                'xAxisColour' : '#FBFCFE',
-               validThemes[0] : {
-                                  'textColour' : '#FBFCFE',                 #
-                                  'bgColour' : '#12121A',
-                                  'gridLineColour' : '#FBFCFE',
-                                  'graphColours' : ['#338C53', '#DA5F61']
+                validThemes[0] : {
+                                'textColour' : '#FBFCFE',                 #
+                                'bgColour' : '#12121A',
+                                'gridLineColour' : '#FBFCFE',
+                                'graphColours' : ['#338C53', '#DA5F61']
                                 },
-               validThemes[1] : {
-                                  'textColour' : '#FBFCFE',                 # light gray
-                                  'bgColour' : '#212946',                   # darker purplish blue 
-                                  'gridLineColour' : '#2F3C69',             # light purplish blue
-                                  'graphColours' : ['#08F7FE', '#FE53BB']   # turquoise(positive elo), pink (negative elo)
-                                }
+                validThemes[1] : {
+                                'textColour' : '#FBFCFE',                 # light gray
+                                'bgColour' : '#212946',                   # darker purplish blue 
+                                'gridLineColour' : '#2F3C69',             # light purplish blue
+                                'graphColours' : ['#08F7FE', '#FE53BB']   # turquoise(positive elo), pink (negative elo)
+                                },
+                validThemes[2] : {
+                                'textColour' : '#565b66',                 
+                                'bgColour' : '#1b1b1b',                   
+                                'gridLineColour' : '#2e2e2e',             
+                                'graphColours' : ['#af5ca3', '#FE53BB']   
+                }
              }
-    currentTheme = 'neon' # make a function to retrieve current selected theme / change selected theme
+    currentTheme = 'cyberpunk' # make a function to retrieve current selected theme / change selected theme
     
     
     if currentTheme not in validThemes:
@@ -384,7 +390,7 @@ async def comp(ctx, *, username=None):
         ax.fill_between(x=df.index,
                         y1=df[column].values,
                         y2=[0] * len(df),
-                        color=color,
+                        color=themes[currentTheme]['graphColours'],
                         alpha=0.1)
 
     plt.xlabel("Match")
