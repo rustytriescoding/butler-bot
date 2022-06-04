@@ -280,7 +280,7 @@ async def comp(ctx, *, username=None):
 
     playerData = EF.retrieveData("mmrHistory", user[0], user[1])
 
-    validThemes = ['stock', 'neon', 'cyberpunk']
+    validThemes = ['stock', 'neon', 'cyberpunk', 'seafoam']
     themes = {
                'xAxisColour' : '#FBFCFE',
                 validThemes[0] : {
@@ -300,9 +300,15 @@ async def comp(ctx, *, username=None):
                                 'bgColour' : '#1b1b1b',                   
                                 'gridLineColour' : '#2e2e2e',             
                                 'graphColours' : ['#633798', '#FE53BB']   
+                                },
+                validThemes[3] : {
+                                'textColour' : '#233f5c',                 
+                                'bgColour' : '#001f3e',                   
+                                'gridLineColour' : '#233f5c',             
+                                'graphColours' : ['#4bb0c4', '#FE53BB']   
                 }
              }
-    currentTheme = 'cyberpunk' # make a function to retrieve current selected theme / change selected theme
+    currentTheme = 'seafoam' # make a function to retrieve current selected theme / change selected theme
     
     
     if currentTheme not in validThemes:
