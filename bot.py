@@ -280,69 +280,70 @@ async def comp(ctx, *, username=None):
 
     playerData = EF.retrieveData("mmrHistory", user[0], user[1])
 
+    validThemes = ['stock', 'neon']
+    themes = {
+               validThemes[0] : {
+                                  'textColour' : '#FBFCFE',
+                                  'bgColour' : '#12121A',
+                                  'gridLineColour' : '#FBFCFE',
+                                  'lineGraphColours' : ['#338C53', '#DA5F61']
+                                },
+               validThemes[1] : {
+                                  'textColour' : '#FBFCFE',
+                                  'bgColour' : '#212946',
+                                  'gridLineColour' : '#2F3C69',
+                                  'lineGraphColours' : ['#08F7FE', '#FE53BB'] # 1st is positive elo, 2nd is negative elo
+                                }
+             }
+    currentTheme = 'neon' # make a function to retrieve current selected theme / change selected theme
+    
+    
+    if currentTheme not in validThemes:
+        await ctx.send("You have an invalid theme")
+        return
+
     elo = []
     match = []
     netElo = 0
     matches = 0
 
-
-
-    # for match in playerData['data']:
-    #     netElo += int(match['mmr_change_to_last_game'])
-    #     print("Elo per match" + str(match['mmr_change_to_last_game']))
-    #     elo.insert(len(elo), netElo)       
-    #     print(netElo)
-
-    # match.extend(range(1, len(elo)))
-    # print(match)
-
-
     for match in range(len(playerData['data']), 0, -1):
         netElo += int(playerData['data'][match -1]['mmr_change_to_last_game'])
         elo.append(netElo)
-
+        matches += 1
 
     df = pd.DataFrame({'Net Elo': elo})
-    # colors = np.where(df[elo] < 0, '#00ff41', '#FE53BB')
-    
-
-
-    # All the available preset themes to choose from 
-    # [‘Solarize_Light2’, ‘_classic_test_patch’, ‘bmh’, ‘classic’, ‘dark_background’, ‘fast’, ‘fivethirtyeight’, ‘ggplot’, ’grayscale’, ’seaborn’, ’seaborn-bright’, 
-    # ’seaborn-colorblind’, ‘seaborn-dark’, ‘seaborn-dark-palette’, ‘seaborn-darkgrid’, ‘seaborn-deep’, ‘seaborn-muted’, ‘seaborn-notebook’, ‘seaborn-paper’, ‘seaborn-pastel’,
-    # ‘seaborn-poster’,’seaborn-talk’,’seaborn-ticks’,’seaborn-white’,’seaborn-whitegrid’,’tableau-colorblind10′] 
-    # (useless because of 2nd for param loop which already sets bg color)
-    # plt.style.use("dark_background")
-    # plt.style.use("Solarize_Light2")
 
     # Change font to 15px
     plt.rcParams["font.size"] = 15
 
     # This changes the colour of all the text fonts and legend outline
     for param in ['text.color', 'axes.labelcolor', 'xtick.color', 'ytick.color']:
-        plt.rcParams[param] = '0.9'  # very light grey
+        plt.rcParams[param] = themes[currentTheme]['textColour'] #'0.9'  # very light grey
 
     # This changes the colour of the entire background
     for param in ['figure.facecolor', 'axes.facecolor', 'savefig.facecolor']:
-        plt.rcParams[param] = '#000000' #212946   # bluish dark grey
+        plt.rcParams[param] = themes[currentTheme]['bgColour'] #'#212946' '#000000'  # bluish dark grey
 
 
 
     # The colors after pink only work if there is multiple lines for the graph
     colors = [
         # '#08F7FE',  # teal/cyan
-        '#FE53BB',  # pink
-        '#F5D300',  # yellow
-        '#00ff41',  # matrix green
+        # '#FE53BB',  # pink
+        # '#F5D300',  # yellow
+        # '#00ff41',  # matrix green
+        '#338c53',
+        '#da5f61'
     ]
-
 
 
 
     # Creates the glow effect which stacks multiple lines on top of each other
     fig, ax = plt.subplots()
 
-    df.plot(marker='o', color=colors, ax=ax)
+    # df.plot(marker='o', color=colors, ax=ax)
+    df.plot(marker='o', color=themes[currentTheme]['lineGraphColours'], ax=ax)
 
     # Redraw the data with low alpha and slighty increased linewidth:
     n_shades = 10
@@ -358,7 +359,7 @@ async def comp(ctx, *, username=None):
                 color=colors)
 
 
-
+    
 
     # Threshold to start changing colors
     # threshold = 0
@@ -377,10 +378,6 @@ async def comp(ctx, *, username=None):
 
 
 
-
-
-
-
     # Color the areas below the lines:
     for column, color in zip(df, colors):
         ax.fill_between(x=df.index,
@@ -392,7 +389,8 @@ async def comp(ctx, *, username=None):
     plt.xlabel("Match")
     plt.ylabel("Elo")
 
-    ax.grid(color='#2A3459')
+    # Colour for gridlines
+    ax.grid(color=themes[currentTheme]['gridLineColour'])
     
     ax.set_xlim([ax.get_xlim()[0] - 0.2, ax.get_xlim()[1] + 0.2])  # to not have the markers cut off
     
@@ -407,7 +405,7 @@ async def comp(ctx, *, username=None):
     plt.tick_params(bottom=False)
 
     # Adds horizontal line at y=0
-    ax.hlines(y=0, xmin=0, xmax=matches-1, color='w')
+    ax.hlines(y=0, xmin=0, xmax=matches-1, color='#051d73')
 
     # Adjusts the x-axis to start at match 1 instead of 0
     plt.xticks(np.arange(matches), np.arange(1, matches+1))
