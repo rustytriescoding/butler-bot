@@ -287,22 +287,24 @@ async def comp(ctx, *, username=None):
                                 'textColour' : '#FBFCFE',                 #
                                 'bgColour' : '#12121A',
                                 'gridLineColour' : '#FBFCFE',
-                                'graphColours' : ['#338C53', '#DA5F61']
+                                'graphColours' : ['#338C53', '#DA5F61'],
+                                'graphColourNames' : ['Green', 'Red']
                                 },
                 validThemes[1] : {
-                                'textColour' : '#FBFCFE',                 # light gray
-                                'bgColour' : '#212946',                   # darker purplish blue 
-                                'gridLineColour' : '#2F3C69',             # light purplish blue
-                                'graphColours' : ['#08F7FE', '#FE53BB']   # turquoise(positive elo), pink (negative elo)
+                                'textColour' : '#FBFCFE',                  # light gray
+                                'bgColour' : '#212946',                    # darker purplish blue 
+                                'gridLineColour' : '#2F3C69',              # light purplish blue
+                                'graphColours' : ['#08F7FE', '#FE53BB'],   # turquoise(positive elo), pink (negative elo)
+                                'graphColourNames' : ['Turquoise', 'Pink']
                                 },
                 validThemes[2] : {
                                 'textColour' : '#565b66',                 
                                 'bgColour' : '#1b1b1b',                   
                                 'gridLineColour' : '#2e2e2e',             
-                                'graphColours' : ['#633798', '#FE53BB']   
-                }
+                                'graphColours' : ['#633798', '#FE53BB']
+                                }
              }
-    currentTheme = 'cyberpunk' # make a function to retrieve current selected theme / change selected theme
+    currentTheme = 'neon' # make a function to retrieve current selected theme / change selected theme
     
     
     if currentTheme not in validThemes:
@@ -398,7 +400,6 @@ async def comp(ctx, *, username=None):
 
     # Colour for gridlines
     ax.grid(color=themes[currentTheme]['gridLineColour'])
-    
     ax.set_xlim([ax.get_xlim()[0] - 0.2, ax.get_xlim()[1] + 0.2])  # to not have the markers cut off
     
     # Removes all of the axes from the graph
@@ -412,12 +413,32 @@ async def comp(ctx, *, username=None):
     plt.tick_params(bottom=False)
 
     # Adds horizontal line at y=0
-    ax.hlines(y=0, xmin=0, xmax=matches-1, color=themes['xAxisColour'], linestyle="--")
+    ax.plot([0, matches-1], [0, 0], dashes=[6, 8], label='Using the dashes parameter')
+    # ax.hlines(y=0, xmin=0, xmax=matches-1, color=themes['xAxisColour'], linestyle="--", dashes=[1, 1], lw=5)
 
-    # Adjusts the x-axis to start at match 1 instead of 0
-    plt.xticks(np.arange(matches), np.arange(1, matches+1))
+    # Adjusts the x-axis to start at match 1 instead of 0 with a step of 2
+    plt.xticks(np.arange(0, matches+1, 2), np.arange(1, matches+2, 2))
 
-    plt.savefig("valcomp.png") #, transparent=True
+    plt.legend(
+                handles=[
+                            plt.Line2D([0], [0], color=themes[currentTheme]['graphColours'][0], lw=4, label=themes[currentTheme]['graphColourNames'][0]),
+                            plt.Line2D([0], [0], color=themes[currentTheme]['graphColours'][1], lw=4, label=themes[currentTheme]['graphColourNames'][1])
+                        ],
+                frameon=False,
+                fontsize=14,
+                loc="upper center",
+                bbox_to_anchor=(0.95, 1.23) # top right with tight layout
+                # bbox_to_anchor=(0.95, 1.18) # legend is in the top right
+                # bbox_to_anchor=(0.9, 1.18) # legend is in the top right more space
+                # bbox_to_anchor=(0.55, 1.18) # legend is in the middle
+                # mess around with horizontal / vertical legend elements 
+              )
+
+    # plt.rcParams['figure.figsize'] = 1280, 960 #640, 480 are default dimensions
+    # plt.tight_layout(pad=0.4, w_pad=0.4, h_pad=5.0)
+    plt.tight_layout(rect=[0, 0, 1, 1])
+
+    plt.savefig("valcomp.png") #, transparent=True, dpi=100
     plt.close()
     image = discord.File("valcomp.png")
     await ctx.send(file=image)    
