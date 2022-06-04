@@ -299,7 +299,7 @@ async def comp(ctx, *, username=None):
                                 'textColour' : '#565b66',                 
                                 'bgColour' : '#1b1b1b',                   
                                 'gridLineColour' : '#2e2e2e',             
-                                'graphColours' : ['#af5ca3', '#FE53BB']   
+                                'graphColours' : ['#633798', '#FE53BB']   
                 }
              }
     currentTheme = 'cyberpunk' # make a function to retrieve current selected theme / change selected theme
