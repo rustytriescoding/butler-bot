@@ -41,7 +41,7 @@ valusernames = server["val-data"]
 #Discord Bot Startup
 @bot.event
 async def on_ready():
-    channelID = 977787584178708480
+    channelID = 996534966622093333
     channel = bot.get_channel(channelID)
 
     print(bot.user.name + ' is now online')
