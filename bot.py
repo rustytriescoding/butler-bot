@@ -87,8 +87,10 @@ async def skull(ctx, userinput: str = None):
 async def status(ctx):
     categories = ["Online", "Offline", "Members", "Bots"]
     values = [0, 0, 0, 0]
-    # imageURL = "https://cdn.discordapp.com/avatars/977770675584532520/1770496d2c1ec081b02a2f769d232c6e.webp?size=100"
+    symbols = ['🟢', '🔴', '🧍', '🤖']
+    fillerChar = '\u200b'
     imageURL = ctx.author.avatar_url
+    sender = ctx.author.name
 
     for guild in bot.guilds:
         for user in guild.members:
@@ -105,12 +107,14 @@ async def status(ctx):
     embed.title = "{} Server Status".format(ctx.guild.name)
     embed.timestamp = datetime.datetime.utcnow()
     embed.color = 0xf04e1f
-    embed.set_footer(text="\u200b", icon_url=imageURL)
+    embed.set_footer(text=sender, icon_url=imageURL)
     # embed.add_field(name="{}\t{}\t{}\t{}".format(categories[0], categories[1], categories[2], categories[3]), value="{}\    \    {}{}{}".format(memberCount, botCount, onlineMembers, offlineMembers), inline=True)
-    embed.add_field(name=categories[0], value=values[0], inline=False)
-    embed.add_field(name=categories[1], value=values[1], inline=False)
-    embed.add_field(name=categories[2], value=values[2], inline=False)
-    embed.add_field(name=categories[3], value=values[3], inline=False)
+    embed.add_field(name=categories[0], value=str(values[0]) + " " + symbols[0], inline=True)
+    embed.add_field(name=categories[1], value=str(values[1]) + " " + symbols[1], inline=True)
+    embed.add_field(name=fillerChar, value=fillerChar, inline=True)
+    embed.add_field(name=categories[2], value=str(values[2]) + " " + symbols[2], inline=True)
+    embed.add_field(name=categories[3], value=str(values[3]) + " " + symbols[3], inline=True)
+    embed.add_field(name=fillerChar, value=fillerChar, inline=True)
 
     await ctx.channel.send(embed=embed)
 
