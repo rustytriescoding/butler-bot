@@ -41,7 +41,6 @@ valusernames = server["val-data"]
 #Discord Bot Startup
 @bot.event
 async def on_ready():
-    userID = 235088799074484224
     channelID = 977787584178708480
     channel = bot.get_channel(channelID)
 
@@ -88,7 +87,8 @@ async def skull(ctx, userinput: str = None):
 async def status(ctx):
     categories = ["Online", "Offline", "Members", "Bots"]
     values = [0, 0, 0, 0]
-    imageURL = "https://cdn.discordapp.com/avatars/977770675584532520/1770496d2c1ec081b02a2f769d232c6e.webp?size=100"
+    # imageURL = "https://cdn.discordapp.com/avatars/977770675584532520/1770496d2c1ec081b02a2f769d232c6e.webp?size=100"
+    imageURL = ctx.author.avatar_url
 
     for guild in bot.guilds:
         for user in guild.members:
@@ -117,7 +117,7 @@ async def status(ctx):
 @bot.group()
 async def val(ctx):
     if ctx.invoked_subcommand is None:
-        await ctx.send('Invalid Val command passed')        
+        await ctx.send('Invalid val command passed')
 
 #Cases
 # 1. No username
@@ -160,7 +160,7 @@ async def username(ctx, *, arg: str = None):
                     query = {"_id": ctx.author.id}
                     newusername = { "$set": { "valuser": arg } }           
                     valusernames.update_one(query, newusername)
-                    await ctx.send("Someone has this username, saving anyways")
+                    await ctx.send("Someone on this server already has this username, saving anyways")
                 else:
                     myquery = { "_id": ctx.author.id }
                     if (valusernames.count_documents(myquery) == 0): #User does not exist in database, saving new name
